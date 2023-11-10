@@ -346,9 +346,8 @@ router.post("/signUp", async (req, res) => {
 //   }
 // });
 
-router.get("/",  (req, res) => {
-  
-  res.json({status:200, message:"THIS IS HOME PAGE"});
+router.get("/", (req, res) => {
+  res.json({ status: 200, message: "THIS IS HOME PAGE" });
 });
 
 // router.get("/secret", auth, (req, res) => {
