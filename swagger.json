@@ -2,10 +2,10 @@
     "swagger": "2.0",
     "info": {
         "version": "1.0.0",
-        "title": "HumStaffing application",
-        "description": "HumStaffing application"
+        "title": "Food-Delivery-App",
+        "description": "Food-Delivery-App"
     },
-    "basePath": "/",
+    "basePath": "cute-blue-squid-toga.cyclic.app/",
   "tags": [
     {
       "name": "Auth",
