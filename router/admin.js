@@ -46,28 +46,27 @@ router.use(express.json());
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
-  let Id = Math.floor(Math.random() * 100000) + 1;
+
   let email = req.body.email;
-  console.log(` this is cookie ${req.cookies.jwt}`);
   const mail = await providerRegister.findOne({ email: email });
-  console.log(mail);
   if (mail) {
-    res.status(404).json({ error: "email already present" });
+    res.status(404).json({ status: 400, message: "email already present" });
   }
 
   try {
     const registerEmp = new providerRegister({
-      Id: Id,
-      fullname: req.body.fullname,
       password: req.body.password,
       email: req.body.email,
       date: date,
+      ProfileImage: null,
+      address: null,
+      Phone: null,
+      isVarified: false,
     });
-    const token = await registerEmp.generateAuthToken();
 
     const random = Math.floor(Math.random() * 10000) + 1;
     console.log(random);
-    //
+
     const otpData = new emailvarify({
       email: req.body.email,
       code: random,
@@ -101,56 +100,122 @@ router.post("/signUp", async (req, res) => {
 
     const registered = await registerEmp.save();
     console.log(registered);
-    res.status(201).json(registerEmp);
+    res.status(201).json({
+      status: 201,
+      message: "User has been Created",
+      data: registerEmp,
+    });
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
-// router.post("/emailVrifyOtp", async (req, res) => {
-//   const email = req.body.email;
-//   const code = req.body.code;
-//   const mail = await emailvarify.findOne({ code: code, email: email });
-//   if (mail) {
-//     const currentTime = new Date().getTime();
-//     const Diff = mail.expireIn - currentTime;
-//     console.log(Diff);
-//     if (Diff < 0) {
-//       res.status(401).send("otp expire with in 10 mints");
-//     } else {
-//       const mailVarify = await providerRegister.findOne({ email: email });
+router.post("/emailVrifyOtp", async (req, res) => {
+  const email = req.body.email;
+  const code = req.body.code;
+  const mail = await emailvarify.findOne({ code: code, email: email });
+  if (mail) {
+    const currentTime = new Date().getTime();
+    const Diff = mail.expireIn - currentTime;
+    if (Diff < 0) {
+      res
+        .status(401)
+        .json({ status: 401, message: "otp expire with in 5 mints" });
+    } else {
+      const getmens = await providerRegister.findOneAndUpdate(
+        { email: email },
+        { $set: { isVarified: true } },
+        { new: true }
+      );
 
-//       console.log("email varification successful");
-//       res.status(201).send("email varification successful");
-//     }
-//   } else {
-//     res.status(400).send("Invalid Otp");
-//   }
-// });
+      res
+        .status(200)
+        .json({ status: 200, message: "email varification successful" });
+    }
+  } else {
+    res.status(400).json({ status: 400, message: "Invalid Otp" });
+  }
+});
 
-// router.post("/Login", async (req, res) => {
-//   try {
-//     const email = req.body.email;
-//     const password = req.body.password;
+router.post("/Login", async (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
 
-//     const useremail = await providerRegister.findOne({ email: email });
-//     console.log(useremail);
-//     const token = await useremail.generateAuthToken();
-//     const ismatch = await bcrypt.compare(password, useremail.password);
-//     res.cookie("jwt", token, { httpOnly: true });
-//     if (!useremail || !password) {
-//       res.status(400).json("Enter Correct email or password");
-//     } else if (ismatch) {
-//       res.status(201).json(useremail);
-//     } else {
-//       res.status(404).json("password are not matching");
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).json("invalid email");
-//   }
-// });
+    const useremail = await providerRegister.findOne({ email: email });
 
+    console.log(useremail);
+    const token = await useremail.generateAuthToken();
+    const ismatch = await bcrypt.compare(password, useremail.password);
+    res.cookie("jwt", token, { httpOnly: true });
+    if (!useremail || !password) {
+      res
+        .status(400)
+        .json({ status: 400, message: "Enter Correct email or password" });
+    } else if (ismatch) {
+      res
+        .status(200)
+        .json({ status: 200, message: "Login Successfully", data: useremail });
+    } else {
+      res.status(404).json({ status: 400, message: "Invalid Password" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ status: 400, message: "invalid email" });
+  }
+});
+router.post("/resend-otp", async (req, res) => {
+  try {
+    let email = req.body.email;
+    const mail = await providerRegister.findOne({ email: email });
+    if (!mail) {
+      res.status(404).json({ status: 400, message: "This email not exist" });
+    }else{ const random = Math.floor(Math.random() * 10000) + 1;
+    console.log(random);
+
+    const otpData = new emailvarify({
+      email: req.body.email,
+      code: random,
+      expireIn: new Date().getTime() + 60 * 10000,
+    });
+
+    var transpoter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "eissaanoor@gmail.com",
+        pass: "asqgbvuvawbtjnqz",
+      },
+    });
+
+    var mailoption = {
+      from: "eissaanoor@gmail.com",
+      to: email,
+      subject: "sending email using nodejs",
+      text: `Varify Email OTP ${random}`,
+    };
+    transpoter.sendMail(mailoption, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("email send " + info.response);
+      }
+    });
+
+    const varifyemail = await otpData.save();
+    res.status(201).json({
+      status: 201,
+      message: "Resend otp successfully",
+      data: null,
+    });
+    }
+   
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      message: "internel Server error",
+    });
+  }
+});
 // router.post("/passwordchangeotpSend", async (req, res) => {
 //   const email = req.body.email;
 //   const mail = await providerRegister.findOne({ email: email });

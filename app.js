@@ -2,6 +2,7 @@ var express = require("express");
 var app = express();
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
+
 var PORT = process.env.PORT;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
