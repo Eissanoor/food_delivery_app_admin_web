@@ -11,7 +11,7 @@ const SECRET = process.env.SECRET;
 
 const empoleeSchema = new mongoose.Schema(
   {
-    
+    Id: Number,
     email: {
       type: String,
       required: true,

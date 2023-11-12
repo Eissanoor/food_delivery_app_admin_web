@@ -46,7 +46,7 @@ router.use(express.json());
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
-
+  let Id = Math.floor(Math.random() * 10000000) + 1;
   let email = req.body.email;
   const mail = await providerRegister.findOne({ email: email });
   if (mail) {
@@ -55,6 +55,7 @@ router.post("/signUp", async (req, res) => {
 
   try {
     const registerEmp = new providerRegister({
+      Id: Id,
       password: req.body.password,
       email: req.body.email,
       date: date,
