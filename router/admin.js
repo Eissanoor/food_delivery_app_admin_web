@@ -264,31 +264,35 @@ router.post("/resend-otp", async (req, res) => {
 //   }
 // });
 
-// router.post("/changePassword", async (req, res) => {
-//   const email = req.body.email;
-//   const code = req.body.code;
-//   const mail = await otp.findOne({ code: code, email: email });
-//   if (mail) {
-//     const currentTime = new Date().getTime();
-//     const Diff = mail.expireIn - currentTime;
-//     console.log(Diff);
-//     if (Diff < 0) {
-//       res.status(401).send("otp expire with in 5 sec");
-//     } else {
-//       const mailVarify = await providerRegister.findOne({ email: email });
-//       const password = req.body.password;
-//       const ismatch = await bcrypt.compare(password, mailVarify.password);
-//       console.log(ismatch);
-//       mailVarify.password = password;
+router.post("/changePassword", async (req, res) => {
+  const email = req.body.email;
+  const code = req.body.code;
+  const mail = await emailvarify.findOne({ code: code, email: email });
+  if (mail) {
+    const currentTime = new Date().getTime();
+    const Diff = mail.expireIn - currentTime;
+    console.log(Diff);
+    if (Diff < 0) {
+      res
+        .status(401)
+        .json({ status: 401, message: "otp expire with in 5 mints" });
+    } else {
+      const mailVarify = await providerRegister.findOne({ email: email });
+      const password = req.body.password;
+      const ismatch = await bcrypt.compare(password, mailVarify.password);
+      console.log(ismatch);
+      mailVarify.password = password;
 
-//       const registered = await mailVarify.save();
-//       console.log("password change successful");
-//       res.status(201).send("password change successful");
-//     }
-//   } else {
-//     res.status(400).send("Invalid Otp");
-//   }
-// });
+      const registered = await mailVarify.save();
+
+      res
+        .status(201)
+        .json({ status: 201, message: "password change successful" });
+    }
+  } else {
+    res.status(400).json({ status: 400, message: "Invalid Otp" });
+  }
+});
 // //upload.array("profile", 12),
 // //upload.single("profile"),
 // const cpUpload = upload.fields([
