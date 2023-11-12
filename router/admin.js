@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const bodyparser = require("body-parser");
 const nodemailer = require("nodemailer");
+const cron = require("node-cron");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -103,7 +104,7 @@ router.post("/signUp", async (req, res) => {
       data: data,
     });
   } catch (e) {
-    res.status(400).json({ status: 400, message:"not found", data: null });
+    res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
 router.post("/emailVrifyOtp", async (req, res) => {
@@ -269,19 +270,26 @@ router.delete("/delete-email/:email", async (req, res) => {
 router.delete("/email-or-password-otp-delete", async (req, res) => {
   try {
     const result = await emailvarify.deleteMany({});
-    if (result.deletedCount === 1) {
+    if (result.deletedCount > 0) {
       res
         .status(200)
-        .json({ status: 200, message: "collection Cleared", data: null });
+        .json({ status: 200, message: "Collection Cleared", data: null });
     } else {
-      res
-        .status(200)
-        .json({ status: 200, message: "collection Cleared", data: null });
+      res.status(200).json({
+        status: 200,
+        message: "Collection is already empty",
+        data: null,
+      });
     }
   } catch (error) {
-    res.json({ status: 500, message: "internel server error", data: null });
+    console.error(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Internal server error", data: null });
   }
 });
+
+// Schedule the function to run every 20 seconds
 // //upload.array("profile", 12),
 // //upload.single("profile"),
 // const cpUpload = upload.fields([
