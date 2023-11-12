@@ -96,7 +96,9 @@ router.post("/signUp", async (req, res) => {
     });
     const varifyemail = await otpData.save();
     const registered = await registerEmp.save();
-    const data = await providerRegister.findOne({ email: email }).select("_id");
+    const data = await providerRegister
+      .findOne({ email: email })
+      .select({ _id: 1, email: 1 });
     console.log(registered);
     res.status(201).json({
       status: 201,
