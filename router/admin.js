@@ -50,7 +50,9 @@ router.post("/signUp", async (req, res) => {
   let email = req.body.email;
   const mail = await providerRegister.findOne({ email: email });
   if (mail) {
-    res.status(404).json({ status: 400, message: "email already present" });
+    res
+      .status(404)
+      .json({ status: 404, message: "email already present", data: null });
   }
 
   try {
@@ -107,7 +109,7 @@ router.post("/signUp", async (req, res) => {
       data: registerEmp,
     });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).json({ status: 400, data: null });
   }
 });
 
@@ -119,9 +121,11 @@ router.post("/emailVrifyOtp", async (req, res) => {
     const currentTime = new Date().getTime();
     const Diff = mail.expireIn - currentTime;
     if (Diff < 0) {
-      res
-        .status(401)
-        .json({ status: 401, message: "otp expire with in 5 mints" });
+      res.status(401).json({
+        status: 401,
+        message: "otp expire with in 5 mints",
+        data: null,
+      });
     } else {
       const getmens = await providerRegister.findOneAndUpdate(
         { email: email },
@@ -131,10 +135,14 @@ router.post("/emailVrifyOtp", async (req, res) => {
 
       res
         .status(200)
-        .json({ status: 200, message: "email varification successful" });
+        .json({
+          status: 200,
+          message: "email varification successful",
+          data: getmens,
+        });
     }
   } else {
-    res.status(400).json({ status: 400, message: "Invalid Otp" });
+    res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
 
@@ -152,17 +160,23 @@ router.post("/Login", async (req, res) => {
     if (!useremail || !password) {
       res
         .status(400)
-        .json({ status: 400, message: "Enter Correct email or password" });
+        .json({
+          status: 400,
+          message: "Enter Correct email or password",
+          data: null,
+        });
     } else if (ismatch) {
       res
         .status(200)
         .json({ status: 200, message: "Login Successfully", data: useremail });
     } else {
-      res.status(404).json({ status: 400, message: "Invalid Password" });
+      res
+        .status(404)
+        .json({ status: 400, message: "Invalid Password", data: null });
     }
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: 400, message: "invalid email" });
+    res.status(400).json({ status: 400, message: "invalid email", data: null });
   }
 });
 router.post("/resend-otp", async (req, res) => {
@@ -170,7 +184,9 @@ router.post("/resend-otp", async (req, res) => {
     let email = req.body.email;
     const mail = await providerRegister.findOne({ email: email });
     if (!mail) {
-      res.status(404).json({ status: 400, message: "This email not exist" });
+      res
+        .status(404)
+        .json({ status: 400, message: "This email not exist", data: null });
     } else {
       const random = Math.floor(Math.random() * 10000) + 1;
       console.log(random);
@@ -214,6 +230,7 @@ router.post("/resend-otp", async (req, res) => {
     res.status(500).json({
       status: 500,
       message: "internel Server error",
+      data: null,
     });
   }
 });
@@ -274,9 +291,11 @@ router.post("/changePassword", async (req, res) => {
     const Diff = mail.expireIn - currentTime;
     console.log(Diff);
     if (Diff < 0) {
-      res
-        .status(401)
-        .json({ status: 401, message: "otp expire with in 5 mints" });
+      res.status(401).json({
+        status: 401,
+        message: "otp expire with in 5 mints",
+        data: null,
+      });
     } else {
       const mailVarify = await providerRegister.findOne({ email: email });
       const password = req.body.password;
@@ -286,12 +305,14 @@ router.post("/changePassword", async (req, res) => {
 
       const registered = await mailVarify.save();
 
-      res
-        .status(201)
-        .json({ status: 201, message: "password change successful" });
+      res.status(201).json({
+        status: 201,
+        message: "password change successful",
+        data: mailVarify,
+      });
     }
   } else {
-    res.status(400).json({ status: 400, message: "Invalid Otp" });
+    res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
 // //upload.array("profile", 12),
@@ -417,7 +438,7 @@ router.post("/changePassword", async (req, res) => {
 // });
 
 router.get("/", (req, res) => {
-  res.json({ status: 200, message: "THIS IS HOME PAGE" });
+  res.json({ status: 200, message: "THIS IS HOME PAGE", data: null });
 });
 //
 // router.get("/secret", auth, (req, res) => {
