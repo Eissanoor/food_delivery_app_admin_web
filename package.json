@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./app.js",
     "nodemon": "nodemon app.js",
-    "build": "npm i --legacy-peer-deps",
+    "build": "node build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

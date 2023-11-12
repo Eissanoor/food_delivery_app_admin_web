@@ -49,11 +49,11 @@ const empoleeSchema = new mongoose.Schema(
 );
 
 // Apply the auto-increment plugin to the schema
-empoleeSchema.plugin(autoIncrement.plugin, {
-  model: "SignUp",
-  field: "Id",
-  startAt: 1,
-});
+// empoleeSchema.plugin(autoIncrement.plugin, {
+//   model: "SignUp",
+//   field: "Id",
+//   startAt: 1,
+// });
 
 empoleeSchema.methods.generateAuthToken = async function () {
   try {
