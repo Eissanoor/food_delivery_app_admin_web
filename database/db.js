@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const autoIncrement = require("mongoose-auto-increment");
+// const autoIncrement = require("mongoose-auto-increment");
 mongoose.Promise = global.Promise;
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
