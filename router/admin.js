@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const bodyparser = require("body-parser");
 const nodemailer = require("nodemailer");
+const validator = require("validator");
 const cron = require("node-cron");
 const path = require("path");
 const bcrypt = require("bcrypt");
@@ -305,6 +306,50 @@ router.get("/get-alluser-detail", auth, async (req, res) => {
       message: "internel server error",
       data: null,
     });
+  }
+});
+router.put("/update-user/:email",auth, async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        status: 400,
+        message: "Invalid email format",
+        data: null,
+      });
+    }
+    const updatedUser = await providerRegister.findOneAndUpdate(
+      { email: email },
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: 404,
+        message: "User not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+
+  
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 });
 // Schedule the function to run every 20 seconds

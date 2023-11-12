@@ -7,21 +7,31 @@ const SECRET = process.env.SECRET;
 var auth = async (req, res, next) => {
   try {
     var token = req.headers.authorization;
-    
+
     if (!token) {
       return res
         .status(401)
-        .json({ error: "Unauthorized: Token not provided" });
+        .json({
+          status: 401,
+          message: "Unauthorized: Token not provided",
+          data: null,
+        });
     }
 
     token = token.split(" ")[1];
-    
+
     const verifiedUser = jwt.verify(token, SECRET);
-    
+
     const user = await Register.findOne({ _id: verifiedUser._id });
 
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized: User not found" });
+      return res
+        .status(401)
+        .json({
+          status: 401,
+          message: "Unauthorized: User not found",
+          data: null,
+        });
     }
 
     req.token = token;
@@ -30,7 +40,13 @@ var auth = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res.status(401).json({ error: "Unauthorized: Invalid token" });
+    res
+      .status(401)
+      .json({
+        status: 401,
+        message: "Unauthorized: Invalid token",
+        data: null,
+      });
   }
 };
 module.exports = auth;
