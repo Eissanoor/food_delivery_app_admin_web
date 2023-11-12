@@ -246,54 +246,26 @@ router.post("/changePassword", async (req, res) => {
     res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
-// router.post("/passwordchangeotpSend", async (req, res) => {
-//   const email = req.body.email;
-//   const mail = await providerRegister.findOne({ email: email });
-
-//   if (mail) {
-//     const random = Math.floor(Math.random() * 10000) + 1;
-//     console.log(random);
-//     try {
-//       const otpData = new otp({
-//         email: req.body.email,
-//         code: random,
-//         expireIn: new Date().getTime() + 60 * 1000,
-//       });
-
-//       var transpoter = nodemailer.createTransport({
-//         service: "gmail",
-//         auth: {
-//           user: "eissaanoor@gmail.com",
-//           pass: "asqgbvuvawbtjnqz",
-//         },
-//       });
-
-//       var mailoption = {
-//         from: "eissaanoor@gmail.com",
-//         to: email,
-//         subject: "sending email using nodejs",
-//         text: `changePassword OTP ${random}`,
-//       };
-//       transpoter.sendMail(mailoption, function (error, info) {
-//         if (error) {
-//           console.log(error);
-//         } else {
-//           console.log("email send " + info.response);
-//         }
-//       });
-
-//       const registered = await otpData.save();
-//       console.log(registered);
-//       res.status(201).send(registered);
-//     } catch (e) {
-//       res.status(400).send(e);
-//     }
-//   } else {
-//     console.log("You are not registered email");
-//     res.status(201).send("You are not registered email");
-//   }
-// });
-
+router.get("/", (req, res) => {
+  res.json({ status: 200, message: "THIS IS HOME PAGE", data: null });
+});
+router.delete("/delete-email/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const result = await providerRegister.deleteOne({ email: email });
+    if (result.deletedCount === 1) {
+      res
+        .status(200)
+        .json({ status: 200, message: "User delete Successfully", data: null });
+    } else {
+      res
+        .status(404)
+        .json({ status: 404, message: "email is not found", data: null });
+    }
+  } catch (error) {
+    res.json({ status: 500, message: "internel server error", data: null });
+  }
+});
 // //upload.array("profile", 12),
 // //upload.single("profile"),
 // const cpUpload = upload.fields([
@@ -416,9 +388,6 @@ router.post("/changePassword", async (req, res) => {
 //   }
 // });
 
-router.get("/", (req, res) => {
-  res.json({ status: 200, message: "THIS IS HOME PAGE", data: null });
-});
 //
 // router.get("/secret", auth, (req, res) => {
 //   res.send("secret da der");
