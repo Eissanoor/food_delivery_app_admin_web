@@ -414,7 +414,7 @@ router.post("/resend-otp", async (req, res) => {
 router.get("/", (req, res) => {
   res.json({ status: 200, message: "THIS IS HOME PAGE" });
 });
-
+//
 // router.get("/secret", auth, (req, res) => {
 //   res.send("secret da der");
 // });
