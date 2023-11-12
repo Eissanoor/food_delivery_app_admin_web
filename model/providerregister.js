@@ -11,10 +11,7 @@ const SECRET = process.env.SECRET;
 
 const empoleeSchema = new mongoose.Schema(
   {
-    // Id: {
-    //   type: Number,
-    //   unique: [true, "already exists Id"],
-    // },
+    
     email: {
       type: String,
       required: true,
