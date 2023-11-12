@@ -7,7 +7,8 @@
     "start": "node ./app.js",
     "nodemon": "nodemon app.js",
     "build": "webpack --config webpack.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-mongoose-auto-increment": "npm i mongoose-auto-increment --force"
   },
   "repository": {
     "type": "git",
