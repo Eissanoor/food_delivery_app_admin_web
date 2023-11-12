@@ -11,13 +11,15 @@ const auth = require("../middleware/auth");
 const providerRegister = require("../model/providerregister");
 const emailvarify = require("../model/emailotp");
 const { profile } = require("console");
-
+var dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
 require("../database/db");
 router.use(cookieparser());
 router.use(bodyparser.urlencoded({ extended: true }));
 router.use(express.urlencoded({ extended: false }));
 router.use(bodyparser.json());
 router.use(express.json());
+const email_OTP_pass = process.env.Email_otp_pass;
 
 // const storage = multer.diskStorage({
 //   destination: "./public/upload",
@@ -42,7 +44,6 @@ router.use(express.json());
 //     profile_url: `https://humstaffing.herokuapp.com/profile/${req.file.filename}`,
 //   });
 // });
-
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
@@ -54,7 +55,6 @@ router.post("/signUp", async (req, res) => {
       .status(404)
       .json({ status: 404, message: "email already present", data: null });
   }
-
   try {
     const registerEmp = new providerRegister({
       Id: Id,
@@ -66,24 +66,20 @@ router.post("/signUp", async (req, res) => {
       Phone: null,
       isVarified: false,
     });
-
     const random = Math.floor(Math.random() * 10000) + 1;
     console.log(random);
-
     const otpData = new emailvarify({
       email: req.body.email,
       code: random,
       expireIn: new Date().getTime() + 60 * 10000,
     });
-
     var transpoter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: "eissaanoor@gmail.com",
-        pass: "asqgbvuvawbtjnqz",
+        pass: email_OTP_pass,
       },
     });
-
     var mailoption = {
       from: "eissaanoor@gmail.com",
       to: email,
@@ -97,10 +93,7 @@ router.post("/signUp", async (req, res) => {
         console.log("email send " + info.response);
       }
     });
-
     const varifyemail = await otpData.save();
-    console.log("saved sho");
-
     const registered = await registerEmp.save();
     const data = await providerRegister.findOne({ email: email }).select("_id");
     console.log(registered);
@@ -113,7 +106,6 @@ router.post("/signUp", async (req, res) => {
     res.status(400).json({ status: 400, data: null });
   }
 });
-
 router.post("/emailVrifyOtp", async (req, res) => {
   const email = req.body.email;
   const code = req.body.code;
@@ -144,15 +136,11 @@ router.post("/emailVrifyOtp", async (req, res) => {
     res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
-
 router.post("/Login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
-
     const useremail = await providerRegister.findOne({ email: email });
-
-    console.log(useremail);
     const token = await useremail.generateAuthToken();
     const ismatch = await bcrypt.compare(password, useremail.password);
     res.cookie("jwt", token, { httpOnly: true });
@@ -187,21 +175,18 @@ router.post("/resend-otp", async (req, res) => {
     } else {
       const random = Math.floor(Math.random() * 10000) + 1;
       console.log(random);
-
       const otpData = new emailvarify({
         email: req.body.email,
         code: random,
         expireIn: new Date().getTime() + 60 * 10000,
       });
-
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
           user: "eissaanoor@gmail.com",
-          pass: "asqgbvuvawbtjnqz",
+          pass: email_OTP_pass,
         },
       });
-
       var mailoption = {
         from: "eissaanoor@gmail.com",
         to: email,
@@ -215,7 +200,6 @@ router.post("/resend-otp", async (req, res) => {
           console.log("email send " + info.response);
         }
       });
-
       const varifyemail = await otpData.save();
       res.status(201).json({
         status: 201,
@@ -229,6 +213,37 @@ router.post("/resend-otp", async (req, res) => {
       message: "internel Server error",
       data: null,
     });
+  }
+});
+router.post("/changePassword", async (req, res) => {
+  const email = req.body.email;
+  const code = req.body.code;
+  const mail = await emailvarify.findOne({ code: code, email: email });
+  if (mail) {
+    const currentTime = new Date().getTime();
+    const Diff = mail.expireIn - currentTime;
+    console.log(Diff);
+    if (Diff < 0) {
+      res.status(401).json({
+        status: 401,
+        message: "otp expire with in 5 mints",
+        data: null,
+      });
+    } else {
+      const mailVarify = await providerRegister.findOne({ email: email });
+      const password = req.body.password;
+      const ismatch = await bcrypt.compare(password, mailVarify.password);
+      console.log(ismatch);
+      mailVarify.password = password;
+      const registered = await mailVarify.save();
+      res.status(201).json({
+        status: 201,
+        message: "password change successful",
+        data: mailVarify,
+      });
+    }
+  } else {
+    res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
 // router.post("/passwordchangeotpSend", async (req, res) => {
@@ -279,39 +294,6 @@ router.post("/resend-otp", async (req, res) => {
 //   }
 // });
 
-router.post("/changePassword", async (req, res) => {
-  const email = req.body.email;
-  const code = req.body.code;
-  const mail = await emailvarify.findOne({ code: code, email: email });
-  if (mail) {
-    const currentTime = new Date().getTime();
-    const Diff = mail.expireIn - currentTime;
-    console.log(Diff);
-    if (Diff < 0) {
-      res.status(401).json({
-        status: 401,
-        message: "otp expire with in 5 mints",
-        data: null,
-      });
-    } else {
-      const mailVarify = await providerRegister.findOne({ email: email });
-      const password = req.body.password;
-      const ismatch = await bcrypt.compare(password, mailVarify.password);
-      console.log(ismatch);
-      mailVarify.password = password;
-
-      const registered = await mailVarify.save();
-
-      res.status(201).json({
-        status: 201,
-        message: "password change successful",
-        data: mailVarify,
-      });
-    }
-  } else {
-    res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
-  }
-});
 // //upload.array("profile", 12),
 // //upload.single("profile"),
 // const cpUpload = upload.fields([
