@@ -170,45 +170,45 @@ router.post("/resend-otp", async (req, res) => {
     const mail = await providerRegister.findOne({ email: email });
     if (!mail) {
       res.status(404).json({ status: 400, message: "This email not exist" });
-    }else{ const random = Math.floor(Math.random() * 10000) + 1;
-    console.log(random);
+    } else {
+      const random = Math.floor(Math.random() * 10000) + 1;
+      console.log(random);
 
-    const otpData = new emailvarify({
-      email: req.body.email,
-      code: random,
-      expireIn: new Date().getTime() + 60 * 10000,
-    });
+      const otpData = new emailvarify({
+        email: req.body.email,
+        code: random,
+        expireIn: new Date().getTime() + 60 * 10000,
+      });
 
-    var transpoter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "eissaanoor@gmail.com",
-        pass: "asqgbvuvawbtjnqz",
-      },
-    });
+      var transpoter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "eissaanoor@gmail.com",
+          pass: "asqgbvuvawbtjnqz",
+        },
+      });
 
-    var mailoption = {
-      from: "eissaanoor@gmail.com",
-      to: email,
-      subject: "sending email using nodejs",
-      text: `Varify Email OTP ${random}`,
-    };
-    transpoter.sendMail(mailoption, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("email send " + info.response);
-      }
-    });
+      var mailoption = {
+        from: "eissaanoor@gmail.com",
+        to: email,
+        subject: "sending email using nodejs",
+        text: `Varify Email OTP ${random}`,
+      };
+      transpoter.sendMail(mailoption, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("email send " + info.response);
+        }
+      });
 
-    const varifyemail = await otpData.save();
-    res.status(201).json({
-      status: 201,
-      message: "Resend otp successfully",
-      data: null,
-    });
+      const varifyemail = await otpData.save();
+      res.status(201).json({
+        status: 201,
+        message: "Resend otp successfully",
+        data: null,
+      });
     }
-   
   } catch (error) {
     res.status(500).json({
       status: 500,
