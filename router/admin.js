@@ -103,7 +103,7 @@ router.post("/signUp", async (req, res) => {
       data: data,
     });
   } catch (e) {
-    res.status(400).json({ status: 400, data: null });
+    res.status(400).json({ status: 400, message:"not found", data: null });
   }
 });
 router.post("/emailVrifyOtp", async (req, res) => {
@@ -261,6 +261,22 @@ router.delete("/delete-email/:email", async (req, res) => {
       res
         .status(404)
         .json({ status: 404, message: "email is not found", data: null });
+    }
+  } catch (error) {
+    res.json({ status: 500, message: "internel server error", data: null });
+  }
+});
+router.delete("/email-or-password-otp-delete", async (req, res) => {
+  try {
+    const result = await emailvarify.deleteMany({});
+    if (result.deletedCount === 1) {
+      res
+        .status(200)
+        .json({ status: 200, message: "collection Cleared", data: null });
+    } else {
+      res
+        .status(200)
+        .json({ status: 200, message: "collection Cleared", data: null });
     }
   } catch (error) {
     res.json({ status: 500, message: "internel server error", data: null });
