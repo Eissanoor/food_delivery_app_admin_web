@@ -102,11 +102,12 @@ router.post("/signUp", async (req, res) => {
     console.log("saved sho");
 
     const registered = await registerEmp.save();
+    const data = await providerRegister.findOne({ email: email }).select("_id");
     console.log(registered);
     res.status(201).json({
       status: 201,
       message: "User has been Created",
-      data: registerEmp,
+      data: data,
     });
   } catch (e) {
     res.status(400).json({ status: 400, data: null });
@@ -133,13 +134,11 @@ router.post("/emailVrifyOtp", async (req, res) => {
         { new: true }
       );
 
-      res
-        .status(200)
-        .json({
-          status: 200,
-          message: "email varification successful",
-          data: getmens,
-        });
+      res.status(200).json({
+        status: 200,
+        message: "email varification successful",
+        data: getmens,
+      });
     }
   } else {
     res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
@@ -158,13 +157,11 @@ router.post("/Login", async (req, res) => {
     const ismatch = await bcrypt.compare(password, useremail.password);
     res.cookie("jwt", token, { httpOnly: true });
     if (!useremail || !password) {
-      res
-        .status(400)
-        .json({
-          status: 400,
-          message: "Enter Correct email or password",
-          data: null,
-        });
+      res.status(400).json({
+        status: 400,
+        message: "Enter Correct email or password",
+        data: null,
+      });
     } else if (ismatch) {
       res
         .status(200)
