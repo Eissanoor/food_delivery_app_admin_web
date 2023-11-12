@@ -55,7 +55,7 @@ const empoleeSchema = new mongoose.Schema(
 empoleeSchema.methods.generateAuthToken = async function () {
   try {
     const token = await jwt.sign({ _id: this._id.toString() }, SECRET, {
-      expiresIn: "5m",
+      expiresIn: "10m",
     });
     this.tokens = this.tokens.concat({ token: token });
     await this.save();
