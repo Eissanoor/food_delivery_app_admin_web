@@ -310,6 +310,7 @@ router.get("/get-alluser-detail", auth, async (req, res) => {
 });
 router.put(
   "/update-user/:email",
+  auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
