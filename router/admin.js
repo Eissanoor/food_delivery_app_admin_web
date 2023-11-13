@@ -23,21 +23,21 @@ router.use(bodyparser.json());
 router.use(express.json());
 const email_OTP_pass = process.env.Email_otp_pass;
 
-// const storage = multer.diskStorage({
-//   destination: "./public/upload",
-//   filename: function (req, file, cb) {
-//     return cb(
-//       null,
-//       `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
-//     );
-//   },
-// });
+const storage = multer.diskStorage({
+  destination: "./public/upload",
+  filename: function (req, file, cb) {
+    return cb(
+      null,
+      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+    );
+  },
+});
 
-// var upload = multer({
-//   storage: storage,
-//   limits: { fileSize: 1000000000000000000000 },
-// });
-// router.use("/profile", express.static("public/upload"));
+var upload = multer({
+  storage: storage,
+  limits: { fileSize: 1000000000000000000000 },
+});
+router.use("/ProfileImage", express.static("public/upload"));
 
 // router.post("/upload", upload.single("profile"), (req, res) => {
 //   console.log(req.file);
@@ -308,50 +308,65 @@ router.get("/get-alluser-detail", auth, async (req, res) => {
     });
   }
 });
-router.put("/update-user/:email",auth, async (req, res) => {
-  try {
-    const email = req.params.email;
+router.put(
+  "/update-user/:email",
+  upload.single("ProfileImage"),
+  async (req, res) => {
+    try {
+      const email = req.params.email;
 
-    if (!isValidEmail(email)) {
-      return res.status(400).json({
-        status: 400,
-        message: "Invalid email format",
+      if (!isValidEmail(email)) {
+        return res.status(400).json({
+          status: 400,
+          message: "Invalid email format",
+          data: null,
+        });
+      }
+
+      const profileImage = req.file ? req.file.buffer : undefined;
+      const url = req.file
+        ? `https://cute-blue-squid-toga.cyclic.app/ProfileImage/${req.file.filename}`
+        : undefined;
+
+      const updatedUser = await providerRegister.findOneAndUpdate(
+        { email: email },
+        { ...req.body, ProfileImage: url },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+          data: null,
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: "User updated successfully",
+        data: updatedUser,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: 500,
+        message: "Internal server error",
         data: null,
       });
     }
-    const updatedUser = await providerRegister.findOneAndUpdate(
-      { email: email },
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({
-        status: 404,
-        message: "User not found",
-        data: null,
-      });
-    }
-
-    res.status(200).json({
-      status: 200,
-      message: "User updated successfully",
-      data: updatedUser,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal server error",
-      data: null,
-    });
   }
+);
 
-  
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-});
+// Function to check if the email is valid (you might want to use a library for email validation)
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 // Schedule the function to run every 20 seconds
 // //upload.array("profile", 12),
 // //upload.single("profile"),
