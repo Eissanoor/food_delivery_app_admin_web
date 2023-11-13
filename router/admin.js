@@ -199,7 +199,7 @@ router.post("/resend-otp", async (req, res) => {
       const varifyemail = await otpData.save();
       res.status(201).json({
         status: 201,
-        message: "Resend otp successfully",
+        message: "Send otp successfully",
         data: null,
       });
     }
