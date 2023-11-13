@@ -27,10 +27,13 @@ const C_cloud_name = process.env.C_cloud_name;
 const C_api_key = process.env.C_api_key;
 const C_api_secret = process.env.C_api_secret;
 cloudinary.config({
-  cloud_name: C_cloud_name,
-  api_key: C_api_key,
-  api_secret: C_api_secret,
+  cloud_name: "dygnjwisi",
+  api_key: "949226119586957",
+  api_secret: "L-f1vqYq2Wd5fEiFp8T_Nx_pV1Y",
 });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+router.use("/ProfileImage", express.static("public/upload"));
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
@@ -296,10 +299,10 @@ router.get("/get-alluser-detail", auth, async (req, res) => {
 router.put(
   "/update-user/:email",
   auth,
+  upload.single("ProfileImage"),
   async (req, res) => {
     try {
       const email = req.params.email;
-
       if (!isValidEmail(email)) {
         return res.status(400).json({
           status: 400,
@@ -307,15 +310,30 @@ router.put(
           data: null,
         });
       }
+      const user = await providerRegister.findOne({ email: email });
 
-      const profileImage = req.file ? req.file.buffer : undefined;
-      const url = req.file
-        ? `https://cute-blue-squid-toga.cyclic.app/ProfileImage/${req.file.filename}`
-        : undefined;
+      if (!user) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+          data: null,
+        });
+      }
+      const file = req.file;
+      let profileImageURL = user.ProfileImage;
+
+      if (file) {
+        profileImageURL = `data:image/png;base64,${file.buffer.toString(
+          "base64"
+        )}`;
+
+        const result = await cloudinary.uploader.upload(profileImageURL);
+        profileImageURL = result.url;
+      }
 
       const updatedUser = await providerRegister.findOneAndUpdate(
         { email: email },
-        { ...req.body, ProfileImage: url },
+        { ...req.body, ProfileImage: profileImageURL },
         { new: true, runValidators: true }
       );
 
@@ -342,11 +360,6 @@ router.put(
     }
   }
 );
-
-// Function to check if the email is valid (you might want to use a library for email validation)
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
