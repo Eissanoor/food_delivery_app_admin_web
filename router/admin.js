@@ -132,7 +132,6 @@ router.post("/Login", async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const useremail = await providerRegister.findOne({ email: email });
-console.log(useremail._id);
     const ismatch = await bcrypt.compare(password, useremail.password);
 
     if (!useremail || !password) {
@@ -144,13 +143,15 @@ console.log(useremail._id);
     } else if (ismatch) {
       const token = await useremail.generateAuthToken();
       res.cookie("jwt", token, { httpOnly: true });
-      res
-        .status(200)
-        .json({
-          status: 200,
-          message: "Login Successfully",
-          data: { _id:useremail._id, accessToken: token },
-        });
+      res.status(200).json({
+        status: 200,
+        message: "Login Successfully",
+        data: {
+          _id: useremail._id,
+          isVerified: useremail.isVarified,
+          accessToken: token,
+        },
+      });
     } else {
       res
         .status(404)
