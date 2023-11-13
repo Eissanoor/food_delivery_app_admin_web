@@ -13,6 +13,7 @@ const auth = require("../middleware/auth");
 const providerRegister = require("../model/providerregister");
 const emailvarify = require("../model/emailotp");
 const { profile } = require("console");
+const cloudinary = require("cloudinary").v2;
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -22,30 +23,14 @@ router.use(express.urlencoded({ extended: false }));
 router.use(bodyparser.json());
 router.use(express.json());
 const email_OTP_pass = process.env.Email_otp_pass;
-
-const storage = multer.diskStorage({
-  destination: "./public/upload",
-  filename: function (req, file, cb) {
-    return cb(
-      null,
-      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
+const C_cloud_name = process.env.C_cloud_name;
+const C_api_key = process.env.C_api_key;
+const C_api_secret = process.env.C_api_secret;
+cloudinary.config({
+  cloud_name: C_cloud_name,
+  api_key: C_api_key,
+  api_secret: C_api_secret,
 });
-
-var upload = multer({
-  storage: storage,
-  limits: { fileSize: 1000000000000000000000 },
-});
-router.use("/ProfileImage", express.static("public/upload"));
-
-// router.post("/upload", upload.single("profile"), (req, res) => {
-//   console.log(req.file);
-//   res.json({
-//     success: 1,
-//     profile_url: `https://humstaffing.herokuapp.com/profile/${req.file.filename}`,
-//   });
-// });
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
@@ -311,7 +296,6 @@ router.get("/get-alluser-detail", auth, async (req, res) => {
 router.put(
   "/update-user/:email",
   auth,
-  upload.single("ProfileImage"),
   async (req, res) => {
     try {
       const email = req.params.email;
