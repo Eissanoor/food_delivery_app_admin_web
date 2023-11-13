@@ -120,7 +120,7 @@ router.post("/emailVrifyOtp", async (req, res) => {
       res.status(200).json({
         status: 200,
         message: "email varification successful",
-        data: getmens,
+        data: null,
       });
     }
   } else {
@@ -142,9 +142,14 @@ router.post("/Login", async (req, res) => {
         data: null,
       });
     } else if (ismatch) {
+      const tokens = await providerRegister.findOne(
+        { email: email },
+        { projection: { tokens: 1 } },
+        { limit: 1, sort: { _id: -1 } }
+      );
       res
         .status(200)
-        .json({ status: 200, message: "Login Successfully", data: useremail });
+        .json({ status: 200, message: "Login Successfully", data: tokens });
     } else {
       res
         .status(404)
