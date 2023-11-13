@@ -27,9 +27,9 @@ const C_cloud_name = process.env.C_cloud_name;
 const C_api_key = process.env.C_api_key;
 const C_api_secret = process.env.C_api_secret;
 cloudinary.config({
-  cloud_name: "dygnjwisi",
-  api_key: "949226119586957",
-  api_secret: "L-f1vqYq2Wd5fEiFp8T_Nx_pV1Y",
+  cloud_name: C_cloud_name,
+  api_key: C_api_key,
+  api_secret: C_api_secret,
 });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
