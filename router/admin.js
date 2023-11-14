@@ -307,7 +307,7 @@ router.get("/get-alluser-detail", async (req, res) => {
 });
 router.put(
   "/update-user/:id",
-auth,
+  auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
@@ -361,7 +361,32 @@ auth,
     }
   }
 );
-
+router.get("/get-user-detail/:id", async (req, res) => {
+  try {
+    const id = req.params._id;
+    const data = await providerRegister
+      .findOne({ id: id })
+      .select({
+        _id: 1,
+        email: 1,
+        Phone: 1,
+        address: 1,
+        fullname: 1,
+        ProfileImage: 1,
+      });
+    res.status(200).json({
+      status: 200,
+      message: "User details",
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
 // Schedule the function to run every 20 seconds
 // //upload.array("profile", 12),
 // //upload.single("profile"),
@@ -440,7 +465,6 @@ auth,
 //     console.log(error);
 //   }
 // });
-
 // router.post("/addJob", async (req, res) => {
 //   try {
 //     let qdate = new Date();
@@ -484,8 +508,6 @@ auth,
 //     console.log(err);
 //   }
 // });
-
-//
 // router.get("/secret", auth, (req, res) => {
 //   res.send("secret da der");
 // });
