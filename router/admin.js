@@ -14,6 +14,7 @@ const providerRegister = require("../model/providerregister");
 const emailvarify = require("../model/emailotp");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
+const MenuItem = require("../model/menuitem");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -34,6 +35,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 router.use("/ProfileImage", express.static("public/upload"));
+router.use("/image", express.static("public/upload"));
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
@@ -257,14 +259,15 @@ router.get("/get-alluser-detail", async (req, res) => {
   }
 });
 router.put(
-  "/update-user/:id",
+  "/update-user/:_id",
   auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
       const id = req.params._id;
-      const user = await providerRegister.findOne({ id: id });
-
+  
+      const user = await providerRegister.findOne({ _id: id });
+      
       if (!user) {
         return res.status(404).json({
           status: 404,
@@ -284,7 +287,7 @@ router.put(
         profileImageURL = result.url;
       }
       const updatedUser = await providerRegister.findOneAndUpdate(
-        { id: id },
+        { _id: id },
         { ...req.body, ProfileImage: profileImageURL, isNewUser: true },
         { new: true, runValidators: true }
       );
@@ -373,6 +376,35 @@ cron.schedule("59 23 * * *", async () => {
     console.log(`Deleted ${deletedCount} documents.`);
   } catch (error) {
     console.error("Error running cron job:", error);
+  }
+});
+router.post("/add-items", upload.single("image"), async (req, res) => {
+  try {
+    const file = req.file;
+    let ManuImage = null;
+
+    if (file) {
+      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+      const result = await cloudinary.uploader.upload(ManuImage);
+      ManuImage = result.url;
+    }
+    const MenuEmp = new MenuItem({
+      itemName: req.body.itemName,
+      price: req.body.price,
+      description: req.body.description,
+      category: req.body.category,
+      image: ManuImage,
+    });
+    const menu = await MenuEmp.save();
+    res.status(201).json({
+      status: 201,
+      message: "Food has been Added",
+      data: MenuEmp,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
 module.exports = router;
