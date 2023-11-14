@@ -306,12 +306,12 @@ router.get("/get-alluser-detail", async (req, res) => {
   }
 });
 router.put(
-  "/update-user/:email",
+  "/update-user/:id",
   auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
-      const email = req.params.email;
+      const id = req.params._id;
       if (!isValidEmail(email)) {
         return res.status(400).json({
           status: 400,
@@ -319,7 +319,7 @@ router.put(
           data: null,
         });
       }
-      const user = await providerRegister.findOne({ email: email });
+      const user = await providerRegister.findOne({ id: id });
 
       if (!user) {
         return res.status(404).json({
