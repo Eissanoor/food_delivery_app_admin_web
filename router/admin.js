@@ -307,18 +307,11 @@ router.get("/get-alluser-detail", async (req, res) => {
 });
 router.put(
   "/update-user/:id",
-  auth,
+
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
       const id = req.params._id;
-      if (!isValidEmail(email)) {
-        return res.status(400).json({
-          status: 400,
-          message: "Invalid email format",
-          data: null,
-        });
-      }
       const user = await providerRegister.findOne({ id: id });
 
       if (!user) {
@@ -340,7 +333,7 @@ router.put(
         profileImageURL = result.url;
       }
       const updatedUser = await providerRegister.findOneAndUpdate(
-        { email: email },
+        { id: id },
         { ...req.body, ProfileImage: profileImageURL, isNewUser: true },
         { new: true, runValidators: true }
       );
@@ -356,7 +349,7 @@ router.put(
       res.status(200).json({
         status: 200,
         message: "User updated successfully",
-        data: updatedUser,
+        data: null,
       });
     } catch (error) {
       console.error(error);
@@ -368,10 +361,6 @@ router.put(
     }
   }
 );
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 // Schedule the function to run every 20 seconds
 // //upload.array("profile", 12),
