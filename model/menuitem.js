@@ -13,14 +13,7 @@ const menuitemSchema = new mongoose.Schema(
     description: String,
     category: {
       type: String,
-      enum: ["dasi", "fastfood"],
       required: true,
-      validate: {
-        validator: function (value) {
-          return ["dasi", "fastfood"].includes(value);
-        },
-        message: "Category must be either 'dasi' or 'fastfood'.",
-      },
     },
     image: String,
   },

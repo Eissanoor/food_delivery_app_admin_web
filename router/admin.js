@@ -265,9 +265,9 @@ router.put(
   async (req, res) => {
     try {
       const id = req.params._id;
-  
+
       const user = await providerRegister.findOne({ _id: id });
-      
+
       if (!user) {
         return res.status(404).json({
           status: 404,
@@ -389,6 +389,7 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       const result = await cloudinary.uploader.upload(ManuImage);
       ManuImage = result.url;
     }
+    
     const MenuEmp = new MenuItem({
       itemName: req.body.itemName,
       price: req.body.price,
@@ -403,8 +404,8 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       data: MenuEmp,
     });
   } catch (e) {
-    console.log(e);
-    res.status(400).json({ status: 400, message: "not found", data: null });
+    
+    res.status(400).json({ status: 400, message: "Required parameter is missing", data: null });
   }
 });
 module.exports = router;
