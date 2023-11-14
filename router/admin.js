@@ -57,34 +57,6 @@ router.post("/signUp", async (req, res) => {
       isVarified: false,
       isNewUser: false,
     });
-    const random = Math.floor(Math.random() * 10000) + 1;
-    console.log(random);
-    const otpData = new emailvarify({
-      email: req.body.email,
-      code: random,
-      expireIn: new Date().getTime() + 60 * 10000,
-    });
-    var transpoter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "eissaanoor@gmail.com",
-        pass: email_OTP_pass,
-      },
-    });
-    var mailoption = {
-      from: "eissaanoor@gmail.com",
-      to: email,
-      subject: "sending email using nodejs",
-      text: `Varify Email OTP ${random}`,
-    };
-    transpoter.sendMail(mailoption, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("email send " + info.response);
-      }
-    });
-    const varifyemail = await otpData.save();
     const registered = await registerEmp.save();
     const data = await providerRegister
       .findOne({ email: email })
