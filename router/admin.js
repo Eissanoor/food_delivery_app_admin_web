@@ -238,27 +238,6 @@ router.delete("/delete-email/:email", async (req, res) => {
     res.json({ status: 500, message: "internel server error", data: null });
   }
 });
-router.delete("/email-or-password-otp-delete", async (req, res) => {
-  try {
-    const result = await emailvarify.deleteMany({});
-    if (result.deletedCount > 0) {
-      res
-        .status(200)
-        .json({ status: 200, message: "Collection Cleared", data: null });
-    } else {
-      res.status(200).json({
-        status: 200,
-        message: "Collection is already empty",
-        data: null,
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Internal server error", data: null });
-  }
-});
 router.get("/get-alluser-detail", async (req, res) => {
   try {
     const data = await providerRegister
@@ -333,19 +312,17 @@ router.put(
     }
   }
 );
-router.get("/get-user-detail/:id", async (req, res) => {
+router.get("/get-user-detail/:id", auth, async (req, res) => {
   try {
     const id = req.params._id;
-    const data = await providerRegister
-      .findOne({ id: id })
-      .select({
-        _id: 1,
-        email: 1,
-        Phone: 1,
-        address: 1,
-        fullname: 1,
-        ProfileImage: 1,
-      });
+    const data = await providerRegister.findOne({ id: id }).select({
+      _id: 1,
+      email: 1,
+      Phone: 1,
+      address: 1,
+      fullname: 1,
+      ProfileImage: 1,
+    });
     res.status(200).json({
       status: 200,
       message: "User details",
@@ -359,147 +336,43 @@ router.get("/get-user-detail/:id", async (req, res) => {
     });
   }
 });
-// Schedule the function to run every 20 seconds
-// //upload.array("profile", 12),
-// //upload.single("profile"),
-// const cpUpload = upload.fields([
-//   { name: "profile", maxCount: 1 },
-//   { name: "resume", maxCount: 1 },
-// ]);
-// router.post("/CreateProfile", cpUpload, async (req, res) => {
-//   try {
-//     let Id = Math.floor(Math.random() * 100000) + 1;
-//     const {
-//       firstname,
-//       lastname,
-//       category,
-//       gender,
-//       Location,
-//       hourlypricestart,
-//       hourlypriceend,
-//       experience,
-//       aboutme,
-//       qalification,
-//       certification,
-//       speciality,
-//       fburl,
-//       instaurl,
-//       linkedinurl,
-//       twitterurl,
-//     } = req.body;
+const clearCollection = async () => {
+  try {
+    const result = await emailvarify.deleteMany({});
+    return result.deletedCount;
+  } catch (error) {
+    console.error("Error clearing collection:", error);
+    throw error;
+  }
+};
+router.delete("/email-or-password-otp-delete", async (req, res) => {
+  try {
+    const deletedCount = await clearCollection();
 
-//     const registerEmp = new CreateProfile({
-//       Id: Id,
-
-//       profile: `https://humstaffing.herokuapp.com/profile/${req.files.profile[0].filename}`,
-//       resume: `https://humstaffing.herokuapp.com/profile/${req.files.resume[0].filename}`,
-//       firstname: firstname,
-//       lastname: lastname,
-//       category: category,
-//       gender: gender,
-//       experience: experience,
-//       aboutme: aboutme,
-//       Location: Location,
-//       hourlypricestart: hourlypricestart,
-//       hourlypriceend: hourlypriceend,
-//       qalification: qalification,
-//       certification: certification,
-//       speciality: speciality,
-//       fburl: fburl,
-//       instaurl: instaurl,
-//       linkedinurl: linkedinurl,
-//       twitterurl: twitterurl,
-//     });
-//     var a = req.files;
-//     console.log(a.profile[0].filename);
-//     const registered = await registerEmp.save();
-//     console.log(registered);
-//     res.status(201).json(registerEmp);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-// router.get("/CreateProfile", async (req, res) => {
-//   const getorder = await CreateProfile.find({});
-//   res.status(201).send(getorder);
-// });
-// router.patch("/BasicInfo/:id", async (req, res) => {
-//   try {
-//     const _id = req.params.id;
-//     const getmens = await CreateProfile.findByIdAndUpdate(_id, req.body, {
-//       new: true,
-//     });
-//     console.log("khansaab");
-//     res.status(201).send(getmens);
-//     console.log(getmens);
-//   } catch (error) {
-//     res.status(400).send(error);
-//     console.log(error);
-//   }
-// });
-// router.post("/addJob", async (req, res) => {
-//   try {
-//     let qdate = new Date();
-//     let date =
-//       qdate.getDay() + "/" + qdate.getMonth() + "/" + qdate.getFullYear();
-//     const {
-//       positionTitle,
-//       hospital_Faculty,
-//       speciality,
-//       jod_duration,
-//       hourlyRate,
-//       shift,
-//       from,
-//       to,
-//       startDate,
-//       endDate,
-//       description,
-//     } = req.body;
-//     const totalhours = to - from;
-
-//     const addjob = new addJob({
-//       Date: date,
-//       positionTitle: positionTitle,
-//       hospital_Faculty: hospital_Faculty,
-//       speciality: speciality,
-//       jod_duration: jod_duration,
-//       hourlyRate: hourlyRate,
-//       shift: shift,
-//       from: from,
-//       to: to,
-//       totalhours: totalhours,
-//       startDate: startDate,
-//       endDate: endDate,
-//       description: description,
-//     });
-//     const registered = await addjob.save();
-//     res.status(201).send(registered);
-//   } catch (err) {
-//     console.log("error");
-
-//     console.log(err);
-//   }
-// });
-// router.get("/secret", auth, (req, res) => {
-//   res.send("secret da der");
-// });
-// router.get("/logout", auth, async (req, res) => {
-//   try {
-//     console.log(req.user);
-//     /////////////////////////////////
-//     ///////////logout cookies
-//     res.clearCookie("jwt");
-
-//     console.log("logout");
-//     await req.user.save();
-//     console.log("sai shoo");
-//     res.send("Logout user will be done");
-
-//     /////////
-//   } catch (error) {
-//     res.status(500).send("the error part");
-//     console.log("the error part");
-//     res.status(500).send(error);
-//   }
-// });
+    if (deletedCount > 0) {
+      res
+        .status(200)
+        .json({ status: 200, message: "Collection Cleared", data: null });
+    } else {
+      res.status(200).json({
+        status: 200,
+        message: "Collection is already empty",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Internal server error", data: null });
+  }
+});
+cron.schedule("59 23 * * *", async () => {
+  try {
+    const deletedCount = await clearCollection();
+    console.log(`Deleted ${deletedCount} documents.`);
+  } catch (error) {
+    console.error("Error running cron job:", error);
+  }
+});
 module.exports = router;
