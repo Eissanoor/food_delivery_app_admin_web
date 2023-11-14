@@ -178,7 +178,7 @@ router.post("/resend-otp", async (req, res) => {
       res.status(201).json({
         status: 201,
         message: "Send otp successfully",
-        data: null,
+        data: { Otp: random },
       });
     }
   } catch (error) {
@@ -389,7 +389,7 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       const result = await cloudinary.uploader.upload(ManuImage);
       ManuImage = result.url;
     }
-    
+
     const MenuEmp = new MenuItem({
       itemName: req.body.itemName,
       price: req.body.price,
@@ -404,8 +404,11 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       data: MenuEmp,
     });
   } catch (e) {
-    
-    res.status(400).json({ status: 400, message: "Required parameter is missing", data: null });
+    res.status(400).json({
+      status: 400,
+      message: "Required parameter is missing",
+      data: null,
+    });
   }
 });
 module.exports = router;
