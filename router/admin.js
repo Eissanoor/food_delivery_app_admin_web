@@ -287,7 +287,7 @@ router.delete("/email-or-password-otp-delete", async (req, res) => {
       .json({ status: 500, message: "Internal server error", data: null });
   }
 });
-router.get("/get-alluser-detail", auth, async (req, res) => {
+router.get("/get-alluser-detail", async (req, res) => {
   try {
     const data = await providerRegister
       .find({})
