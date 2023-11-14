@@ -307,7 +307,7 @@ router.get("/get-alluser-detail", async (req, res) => {
 });
 router.put(
   "/update-user/:id",
-
+auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
