@@ -55,6 +55,7 @@ router.post("/signUp", async (req, res) => {
       address: null,
       Phone: null,
       isVarified: false,
+      isNewUser: false,
     });
     const random = Math.floor(Math.random() * 10000) + 1;
     console.log(random);
@@ -149,6 +150,7 @@ router.post("/Login", async (req, res) => {
         data: {
           _id: useremail._id,
           isVerified: useremail.isVarified,
+          isNewUser: useremail.isNewUser,
           accessToken: token,
         },
       });
@@ -337,10 +339,9 @@ router.put(
         const result = await cloudinary.uploader.upload(profileImageURL);
         profileImageURL = result.url;
       }
-
       const updatedUser = await providerRegister.findOneAndUpdate(
         { email: email },
-        { ...req.body, ProfileImage: profileImageURL },
+        { ...req.body, ProfileImage: profileImageURL, isNewUser: true },
         { new: true, runValidators: true }
       );
 

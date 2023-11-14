@@ -24,7 +24,8 @@ const empoleeSchema = new mongoose.Schema(
         }
       },
     },
-    isVarified: String,
+    isVarified: Boolean,
+    isNewUser: Boolean,
     tokens: [
       {
         token: {
