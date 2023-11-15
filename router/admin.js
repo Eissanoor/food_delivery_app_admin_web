@@ -148,6 +148,68 @@ router.post("/Login", async (req, res) => {
     res.status(400).json({ status: 400, message: "invalid email", data: null });
   }
 });
+router.post("/resend-otp", async (req, res) => {
+  try {
+    let email = req.body.email;
+    const mail = await providerRegister.findOne({ email: email });
+    if (!mail) {
+      res
+        .status(404)
+        .json({ status: 400, message: "This email not exist", data: null });
+    } else {
+      const random = Math.floor(Math.random() * 10000) + 1;
+      console.log(random);
+      const otpData = new emailvarify({
+        email: req.body.email,
+        code: random,
+        expireIn: new Date().getTime() + 60 * 10000,
+      });
+      var transpoter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "eissaanoor@gmail.com",
+          pass: Email_otp_pass,
+        },
+      });
+      var mailoption = {
+        from: "eissaanoor@gmail.com",
+        to: email,
+        subject: "sending email using nodejs",
+        text: `Varify Email OTP ${random}`,
+      };
+      transpoter.sendMail(mailoption, function (error, info) {
+        if (error) {
+          console.log(error);
+          res.status(500).json({
+            status: 500,
+            message: "Failed to send OTP email",
+            data: null,
+          });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(201).json({
+            status: 201,
+            message: "Send OTP successfully",
+            data: { Otp: random },
+          });
+        }
+      });
+      const varifyemail = await otpData.save();
+      res.status(201).json({
+        status: 201,
+        message: "Send otp successfully",
+        data: { Otp: random },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel Server error",
+      data: null,
+    });
+  }
+});
 router.post("/changePassword", async (req, res) => {
   try {
     const email = req.body.email;
@@ -379,49 +441,5 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
     });
   }
 });
-router.post("/send-otp", async (req, res) => {
-  try {
-    let email = req.body.email;
-    const mail = await providerRegister.findOne({ email: email });
-    if (!mail) {
-      res
-        .status(404)
-        .json({ status: 400, message: "This email not exist", data: null });
-    } else {
-      const random = Math.floor(Math.random() * 10000) + 1;
-      console.log(random);
-      const otpData = new emailvarify({
-        email: req.body.email,
-        code: random,
-        expireIn: new Date().getTime() + 60 * 10000,
-      });
-      const mg = mailgun({
-        apiKey: MailGun_api_key,
-        domain: DOMAIN,
-      });
-      const data = {
-        from: "eissaanoor@gmail.com",
-        to: email,
-        subject: "sending email using nodejs",
-        text: `Varify Email OTP ${random}`,
-      };
-      mg.messages().send(data, function (error, body) {
-        console.log(body);
-      });
-      const varifyemail = await otpData.save();
-      res.status(201).json({
-        status: 201,
-        message: "Send otp successfully",
-        data: { Otp: random },
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "internel Server error",
-      data: null,
-    });
-  }
-});
+
 module.exports = router;
