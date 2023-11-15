@@ -167,7 +167,7 @@ router.post("/resend-otp", async (req, res) => {
       var transpoter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "eissaanoor@gmail.com",
+          user: "wasimxaman13@gmail.com",
           pass: Email_otp_pass,
         },
       });
