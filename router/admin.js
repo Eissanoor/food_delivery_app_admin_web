@@ -69,36 +69,42 @@ router.post("/signUp", async (req, res) => {
       data: data,
     });
   } catch (e) {
+    console.log(e);
     res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
 router.post("/emailVrifyOtp", async (req, res) => {
-  const email = req.body.email;
-  const code = req.body.code;
-  const mail = await emailvarify.findOne({ code: code, email: email });
-  if (mail) {
-    const currentTime = new Date().getTime();
-    const Diff = mail.expireIn - currentTime;
-    if (Diff < 0) {
-      res.status(401).json({
-        status: 401,
-        message: "otp expire with in 5 mints",
-        data: null,
-      });
-    } else {
-      const getmens = await providerRegister.findOneAndUpdate(
-        { email: email },
-        { $set: { isVarified: true } },
-        { new: true }
-      );
+  try {
+    const email = req.body.email;
+    const code = req.body.code;
+    const mail = await emailvarify.findOne({ code: code, email: email });
+    if (mail) {
+      const currentTime = new Date().getTime();
+      const Diff = mail.expireIn - currentTime;
+      if (Diff < 0) {
+        res.status(401).json({
+          status: 401,
+          message: "otp expire with in 5 mints",
+          data: null,
+        });
+      } else {
+        const getmens = await providerRegister.findOneAndUpdate(
+          { email: email },
+          { $set: { isVarified: true } },
+          { new: true }
+        );
 
-      res.status(200).json({
-        status: 200,
-        message: "email varification successful",
-        data: null,
-      });
+        res.status(200).json({
+          status: 200,
+          message: "email varification successful",
+          data: null,
+        });
+      }
+    } else {
+      res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
     }
-  } else {
+  } catch (error) {
+    console.log(error);
     res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
@@ -182,6 +188,7 @@ router.post("/resend-otp", async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: 500,
       message: "internel Server error",
@@ -190,33 +197,38 @@ router.post("/resend-otp", async (req, res) => {
   }
 });
 router.post("/changePassword", async (req, res) => {
-  const email = req.body.email;
-  const code = req.body.code;
-  const mail = await emailvarify.findOne({ code: code, email: email });
-  if (mail) {
-    const currentTime = new Date().getTime();
-    const Diff = mail.expireIn - currentTime;
-    console.log(Diff);
-    if (Diff < 0) {
-      res.status(401).json({
-        status: 401,
-        message: "otp expire with in 5 mints",
-        data: null,
-      });
+  try {
+    const email = req.body.email;
+    const code = req.body.code;
+    const mail = await emailvarify.findOne({ code: code, email: email });
+    if (mail) {
+      const currentTime = new Date().getTime();
+      const Diff = mail.expireIn - currentTime;
+      console.log(Diff);
+      if (Diff < 0) {
+        res.status(401).json({
+          status: 401,
+          message: "otp expire with in 5 mints",
+          data: null,
+        });
+      } else {
+        const mailVarify = await providerRegister.findOne({ email: email });
+        const password = req.body.password;
+        const ismatch = await bcrypt.compare(password, mailVarify.password);
+        console.log(ismatch);
+        mailVarify.password = password;
+        const registered = await mailVarify.save();
+        res.status(201).json({
+          status: 201,
+          message: "password change successful",
+          data: mailVarify,
+        });
+      }
     } else {
-      const mailVarify = await providerRegister.findOne({ email: email });
-      const password = req.body.password;
-      const ismatch = await bcrypt.compare(password, mailVarify.password);
-      console.log(ismatch);
-      mailVarify.password = password;
-      const registered = await mailVarify.save();
-      res.status(201).json({
-        status: 201,
-        message: "password change successful",
-        data: mailVarify,
-      });
+      res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
     }
-  } else {
+  } catch (error) {
+    console.log(error);
     res.status(400).json({ status: 400, message: "Invalid Otp", data: null });
   }
 });
@@ -237,6 +249,7 @@ router.delete("/delete-email/:email", async (req, res) => {
         .json({ status: 404, message: "email is not found", data: null });
     }
   } catch (error) {
+    console.log(error);
     res.json({ status: 500, message: "internel server error", data: null });
   }
 });
@@ -251,6 +264,7 @@ router.get("/get-alluser-detail", async (req, res) => {
       data: data,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: 500,
       message: "internel server error",
@@ -332,6 +346,7 @@ router.get("/get-user-detail/:id", auth, async (req, res) => {
       data: data,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: 500,
       message: "internel server error",
@@ -404,6 +419,7 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       data: MenuEmp,
     });
   } catch (e) {
+    console.log(e);
     res.status(400).json({
       status: 400,
       message: "Required parameter is missing",
