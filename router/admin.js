@@ -25,14 +25,12 @@ router.use(bodyparser.json());
 router.use(express.json());
 const mailgun = require("mailgun-js");
 const mailGun = process.env.mailGun;
-console.log(mailGun);
 const DOMAIN = mailGun;
 const Email_otp_pass = process.env.Email_otp_pass;
 const C_cloud_name = process.env.C_cloud_name;
 const C_api_key = process.env.C_api_key;
 const C_api_secret = process.env.C_api_secret;
 const MailGun_api_key = process.env.MailGun_api_key;
-console.log(MailGun_api_key);
 cloudinary.config({
   cloud_name: C_cloud_name,
   api_key: C_api_key,
@@ -148,68 +146,6 @@ router.post("/Login", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: 400, message: "invalid email", data: null });
-  }
-});
-router.post("/resend-otp", async (req, res) => {
-  try {
-    let email = req.body.email;
-    const mail = await providerRegister.findOne({ email: email });
-    if (!mail) {
-      res
-        .status(404)
-        .json({ status: 400, message: "This email not exist", data: null });
-    } else {
-      const random = Math.floor(Math.random() * 10000) + 1;
-      console.log(random);
-      const otpData = new emailvarify({
-        email: req.body.email,
-        code: random,
-        expireIn: new Date().getTime() + 60 * 10000,
-      });
-      var transpoter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "eissaanoor@gmail.com",
-          pass: Email_otp_pass,
-        },
-      });
-      var mailoption = {
-        from: "eissaanoor@gmail.com",
-        to: email,
-        subject: "sending email using nodejs",
-        text: `Varify Email OTP ${random}`,
-      };
-      transpoter.sendMail(mailoption, function (error, info) {
-        if (error) {
-          console.log(error);
-          res.status(500).json({
-            status: 500,
-            message: "Failed to send OTP email",
-            data: null,
-          });
-        } else {
-          console.log("Email sent: " + info.response);
-          res.status(201).json({
-            status: 201,
-            message: "Send OTP successfully",
-            data: { Otp: random },
-          });
-        }
-      });
-      const varifyemail = await otpData.save();
-      res.status(201).json({
-        status: 201,
-        message: "Send otp successfully",
-        data: { Otp: random },
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "internel Server error",
-      data: null,
-    });
   }
 });
 router.post("/changePassword", async (req, res) => {
