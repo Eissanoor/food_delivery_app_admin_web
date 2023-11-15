@@ -176,8 +176,18 @@ router.post("/resend-otp", async (req, res) => {
       transpoter.sendMail(mailoption, function (error, info) {
         if (error) {
           console.log(error);
+          res.status(500).json({
+            status: 500,
+            message: "Failed to send OTP email",
+            data: null,
+          });
         } else {
-          console.log("email send " + info.response);
+          console.log("Email sent: " + info.response);
+          res.status(201).json({
+            status: 201,
+            message: "Send OTP successfully",
+            data: { Otp: random },
+          });
         }
       });
       const varifyemail = await otpData.save();
