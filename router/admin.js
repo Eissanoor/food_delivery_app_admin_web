@@ -23,7 +23,7 @@ router.use(bodyparser.urlencoded({ extended: true }));
 router.use(express.urlencoded({ extended: false }));
 router.use(bodyparser.json());
 router.use(express.json());
-const email_OTP_pass = process.env.Email_otp_pass;
+const Email_otp_pass = process.env.Email_otp_pass;
 const C_cloud_name = process.env.C_cloud_name;
 const C_api_key = process.env.C_api_key;
 const C_api_secret = process.env.C_api_secret;
@@ -164,7 +164,7 @@ router.post("/resend-otp", async (req, res) => {
         service: "gmail",
         auth: {
           user: "eissaanoor@gmail.com",
-          pass: email_OTP_pass,
+          pass: Email_otp_pass,
         },
       });
       var mailoption = {
