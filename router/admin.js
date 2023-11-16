@@ -15,6 +15,7 @@ const emailvarify = require("../model/emailotp");
 const { profile } = require("console");
 const cloudinary = require("cloudinary").v2;
 const MenuItem = require("../model/menuitem");
+const Catagres = require("../model/addcatagres");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -441,5 +442,48 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
     });
   }
 });
-//
+router.post("/add-catogray", async (req, res) => {
+  try {
+    const category = req.body.category;
+    const mail = await Catagres.findOne({ category: category });
+    if (!mail) {
+      const CatagresEmp = new Catagres({
+        category: req.body.category,
+      });
+      const addCatagres = await CatagresEmp.save();
+      res.status(201).json({
+        status: 201,
+        message: "Catogary has been Added",
+        data: addCatagres,
+      });
+    }else{res
+      .status(404)
+      .json({ status: 404, message: "Catogary already present", data: null });}
+    
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({
+      status: 400,
+      message: "Required parameter is missing",
+      data: null,
+    });
+  }
+});
+router.get("/get-allcatogray", async (req, res) => {
+  try {
+    const data = await Catagres.find({});
+    res.status(200).json({
+      status: 200,
+      message: "catogray details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
 module.exports = router;
