@@ -453,13 +453,14 @@ router.post("/add-catogray", async (req, res) => {
       const addCatagres = await CatagresEmp.save();
       res.status(201).json({
         status: 201,
-        message: "Catogary has been Added",
+        message: "category has been Added",
         data: addCatagres,
       });
-    }else{res
-      .status(404)
-      .json({ status: 404, message: "Catogary already present", data: null });}
-    
+    } else {
+      res
+        .status(404)
+        .json({ status: 404, message: "category already present", data: null });
+    }
   } catch (e) {
     console.log(e);
     res.status(400).json({
@@ -471,10 +472,10 @@ router.post("/add-catogray", async (req, res) => {
 });
 router.get("/get-allcatogray", async (req, res) => {
   try {
-    const data = await Catagres.find({});
+    const data = await Catagres.find({}, { category: 1, _id: 0 });
     res.status(200).json({
       status: 200,
-      message: "catogray details",
+      message: "category details",
       data: data,
     });
   } catch (error) {
