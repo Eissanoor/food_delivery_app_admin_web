@@ -172,7 +172,7 @@ router.post("/resend-otp", async (req, res) => {
         },
       });
       var mailoption = {
-        from: "eissaanoor@gmail.com",
+        from: "wasimxaman13@gmail.com",
         to: email,
         subject: "sending email using nodejs",
         text: `Varify Email OTP ${random}`,
