@@ -454,62 +454,58 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
     });
   }
 });
-router.put(
-  "/update-items/:_id",
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      const id = req.params._id;
+router.put("/update-items/:_id", upload.single("image"), async (req, res) => {
+  try {
+    const id = req.params._id;
 
-      const user = await MenuItem.findOne({ _id: id });
+    const user = await MenuItem.findOne({ _id: id });
 
-      if (!user) {
-        return res.status(404).json({
-          status: 404,
-          message: "Item not found",
-          data: null,
-        });
-      }
-      const file = req.file;
-      let profileImageURL = user.image;
-
-      if (file) {
-        profileImageURL = `data:image/png;base64,${file.buffer.toString(
-          "base64"
-        )}`;
-
-        const result = await cloudinary.uploader.upload(profileImageURL);
-        profileImageURL = result.url;
-      }
-      const updatedUser = await MenuItem.findOneAndUpdate(
-        { _id: id },
-        { ...req.body, image: profileImageURL },
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedUser) {
-        return res.status(404).json({
-          status: 404,
-          message: "Item not found",
-          data: null,
-        });
-      }
-
-      res.status(200).json({
-        status: 200,
-        message: "Item updated successfully",
-        data: null,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        status: 500,
-        message: "Internal server error",
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        message: "Item not found",
         data: null,
       });
     }
+    const file = req.file;
+    let profileImageURL = user.image;
+
+    if (file) {
+      profileImageURL = `data:image/png;base64,${file.buffer.toString(
+        "base64"
+      )}`;
+
+      const result = await cloudinary.uploader.upload(profileImageURL);
+      profileImageURL = result.url;
+    }
+    const updatedUser = await MenuItem.findOneAndUpdate(
+      { _id: id },
+      { ...req.body, image: profileImageURL },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        status: 404,
+        message: "Item not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "Item updated successfully",
+      data: null,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
   }
-);
+});
 router.post("/add-catogray", async (req, res) => {
   try {
     const category = req.body.category;
@@ -536,6 +532,26 @@ router.post("/add-catogray", async (req, res) => {
       message: "Required parameter is missing",
       data: null,
     });
+  }
+});
+router.delete("/delete-catogray/:category", async (req, res) => {
+  try {
+    const category = req.params.category;
+    const mail = await Catagres.deleteOne({ category: category });
+    if (mail.deletedCount === 1) {
+      res.status(200).json({
+        status: 200,
+        message: "category delete Successfully",
+        data: null,
+      });
+    } else {
+      res
+        .status(404)
+        .json({ status: 404, message: "category is not found", data: null });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ status: 500, message: "internel server error", data: null });
   }
 });
 router.get("/get-allcatogray", async (req, res) => {
@@ -590,4 +606,23 @@ router.delete("/delete-items/:itemName", async (req, res) => {
     res.json({ status: 500, message: "internel server error", data: null });
   }
 });
+router.get("/get-item-byid/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = await MenuItem.findOne({ _id: id });
+    res.status(200).json({
+      status: 200,
+      message: "item details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internal server error", // Corrected typo in the message
+      data: null,
+    });
+  }
+});
+
 module.exports = router;
