@@ -412,29 +412,39 @@ cron.schedule("59 23 * * *", async () => {
 });
 router.post("/add-items", upload.single("image"), async (req, res) => {
   try {
-    const file = req.file;
-    let ManuImage = null;
+    const itemName = req.body.itemName;
+    const itemNameexist = await MenuItem.findOne({ itemName: itemName });
+    if (!itemNameexist) {
+      const file = req.file;
+      let ManuImage = null;
 
-    if (file) {
-      ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+      if (file) {
+        ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
 
-      const result = await cloudinary.uploader.upload(ManuImage);
-      ManuImage = result.url;
+        const result = await cloudinary.uploader.upload(ManuImage);
+        ManuImage = result.url;
+      }
+
+      const MenuEmp = new MenuItem({
+        itemName: req.body.itemName,
+        price: req.body.price,
+        description: req.body.description,
+        category: req.body.category,
+        image: ManuImage,
+      });
+      const menu = await MenuEmp.save();
+      res.status(201).json({
+        status: 201,
+        message: "Food has been Added",
+        data: MenuEmp,
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: "itemName already present",
+        data: null,
+      });
     }
-
-    const MenuEmp = new MenuItem({
-      itemName: req.body.itemName,
-      price: req.body.price,
-      description: req.body.description,
-      category: req.body.category,
-      image: ManuImage,
-    });
-    const menu = await MenuEmp.save();
-    res.status(201).json({
-      status: 201,
-      message: "Food has been Added",
-      data: MenuEmp,
-    });
   } catch (e) {
     console.log(e);
     res.status(400).json({
@@ -444,6 +454,62 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
     });
   }
 });
+router.put(
+  "/update-items/:_id",
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const id = req.params._id;
+
+      const user = await MenuItem.findOne({ _id: id });
+
+      if (!user) {
+        return res.status(404).json({
+          status: 404,
+          message: "Item not found",
+          data: null,
+        });
+      }
+      const file = req.file;
+      let profileImageURL = user.image;
+
+      if (file) {
+        profileImageURL = `data:image/png;base64,${file.buffer.toString(
+          "base64"
+        )}`;
+
+        const result = await cloudinary.uploader.upload(profileImageURL);
+        profileImageURL = result.url;
+      }
+      const updatedUser = await MenuItem.findOneAndUpdate(
+        { _id: id },
+        { ...req.body, image: profileImageURL },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({
+          status: 404,
+          message: "Item not found",
+          data: null,
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: "Item updated successfully",
+        data: null,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: 500,
+        message: "Internal server error",
+        data: null,
+      });
+    }
+  }
+);
 router.post("/add-catogray", async (req, res) => {
   try {
     const category = req.body.category;
@@ -487,6 +553,41 @@ router.get("/get-allcatogray", async (req, res) => {
       message: "internel server error",
       data: null,
     });
+  }
+});
+router.get("/get-allitem", async (req, res) => {
+  try {
+    const data = await MenuItem.find({});
+    res.status(200).json({
+      status: 200,
+      message: "Item details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
+router.delete("/delete-items/:itemName", async (req, res) => {
+  try {
+    const itemName = req.params.itemName;
+    const result = await MenuItem.deleteOne({ itemName: itemName });
+    if (result.deletedCount === 1) {
+      res
+        .status(200)
+        .json({ status: 200, message: "item delete Successfully", data: null });
+    } else {
+      res
+        .status(404)
+        .json({ status: 404, message: "item is not found", data: null });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ status: 500, message: "internel server error", data: null });
   }
 });
 module.exports = router;
