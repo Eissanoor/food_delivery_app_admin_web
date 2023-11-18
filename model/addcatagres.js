@@ -17,7 +17,7 @@ const catagresSchema = new mongoose.Schema(
 // catagresSchema.plugin(autoIncrement.plugin, {
 //   model: "catagres",
 //   field: "categoryId",
-//   startAt: 1,
+///   startAt: 1,
 // });
 const catagres = new mongoose.model("catagres", catagresSchema);
 module.exports = catagres;
