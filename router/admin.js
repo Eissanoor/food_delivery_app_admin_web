@@ -565,7 +565,7 @@ router.post("/add-catogray", async (req, res) => {
     if (!mail) {
       const CatagresEmp = new Catagres({
         category: req.body.category,
-        categoryid: Id,
+      
       });
       //
       const addCatagres = await CatagresEmp.save();
