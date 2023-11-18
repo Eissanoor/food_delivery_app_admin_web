@@ -17,6 +17,7 @@ const cloudinary = require("cloudinary").v2;
 const MenuItem = require("../model/menuitem");
 const cors = require("cors");
 const Catagres = require("../model/addcatagres");
+const Counting = require("../model/counting");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -43,6 +44,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 router.use("/ProfileImage", express.static("public/upload"));
 router.use("/image", express.static("public/upload"));
+router.use("/categoryThumbnail", express.static("public/upload"));
 router.post("/signUp", async (req, res) => {
   let qdate = new Date();
   let date = qdate.toDateString();
@@ -557,37 +559,60 @@ router.put("/update-items/:_id", upload.single("image"), async (req, res) => {
     });
   }
 });
-router.post("/add-catogray", async (req, res) => {
-  try {
-    const category = req.body.category;
-    let Id = Math.floor(Math.random() * 10000000) + 1;
-    const mail = await Catagres.findOne({ category: category });
-    if (!mail) {
-      const CatagresEmp = new Catagres({
-        category: req.body.category,
-      
+router.post(
+  "/add-catogray",
+  upload.single("categoryThumbnail"),
+  async (req, res) => {
+    try {
+      const category = req.body.category;
+      let Id = Math.floor(Math.random() * 10000000) + 1;
+      const mail = await Catagres.findOne({ category: category });
+      if (!mail) {
+        const file = req.file;
+        let ManuImage = null;
+
+        if (file) {
+          ManuImage = `data:image/png;base64,${file.buffer.toString("base64")}`;
+
+          const result = await cloudinary.uploader.upload(ManuImage);
+          ManuImage = result.url;
+        }
+        const count = await Counting.find({}, { _id: 0 });
+
+        const addidtioncount = count[0].categoryId + 1;
+        const updatedCount = await Counting.findOneAndUpdate(
+          {},
+          { $inc: { categoryId: 1 } }, // Use $inc to increment the categoryId field
+          { new: true }
+        );
+        const CatagresEmp = new Catagres({
+          category: req.body.category,
+          categoryThumbnail: ManuImage,
+          categoryId: addidtioncount,
+        });
+        const addCatagres = await CatagresEmp.save();
+        res.status(201).json({
+          status: 201,
+          message: "category has been Added",
+          data: addCatagres,
+        });
+      } else {
+        res.status(404).json({
+          status: 404,
+          message: "category already present",
+          data: null,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      res.status(400).json({
+        status: 400,
+        message: "Required parameter is missing",
+        data: null,
       });
-      //
-      const addCatagres = await CatagresEmp.save();
-      res.status(201).json({
-        status: 201,
-        message: "category has been Added",
-        data: addCatagres,
-      });
-    } else {
-      res
-        .status(404)
-        .json({ status: 404, message: "category already present", data: null });
     }
-  } catch (e) {
-    console.log(e);
-    res.status(400).json({
-      status: 400,
-      message: "Required parameter is missing",
-      data: null,
-    });
   }
-});
+);
 router.delete("/delete-catogray/:category", async (req, res) => {
   try {
     const category = req.params.category;
@@ -610,7 +635,7 @@ router.delete("/delete-catogray/:category", async (req, res) => {
 });
 router.get("/get-allcatogray", async (req, res) => {
   try {
-    const data = await Catagres.find({}, { category: 1, _id: 0 });
+    const data = await Catagres.find({}, { category: 1, categoryId:1, _id: 0 });
     res.status(200).json({
       status: 200,
       message: "category details",

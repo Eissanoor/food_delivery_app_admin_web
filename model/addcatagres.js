@@ -6,6 +6,8 @@ const catagresSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    categoryThumbnail: String,
+    categoryId: Number,
   },
   {
     timestamps: true,
