@@ -7,7 +7,7 @@ const catagresSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    categoryId:Number,
+    categoryId:Number,default:0,
   },
   {
     timestamps: true,
