@@ -119,6 +119,8 @@ router.post("/Login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
+    const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000;
+    const expirationTime = new Date().getTime() + oneMonthInMillis;
     const useremail = await providerRegister.findOne({ email: email });
     const ismatch = await bcrypt.compare(password, useremail.password);
 
@@ -129,6 +131,11 @@ router.post("/Login", async (req, res) => {
         data: null,
       });
     } else if (ismatch) {
+      const getmens = await providerRegister.findOneAndUpdate(
+        { email: email },
+        { $set: { expireIn: expirationTime } },
+        { new: true }
+      );
       const token = await useremail.generateAuthToken();
       res.cookie("jwt", token, { httpOnly: true });
       res.status(200).json({
@@ -203,6 +210,50 @@ router.post("/resend-otp", async (req, res) => {
         message: "Send otp successfully",
         data: { Otp: random },
       });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel Server error",
+      data: null,
+    });
+  }
+});
+router.post("/refresh-token", auth, async (req, res) => {
+  try {
+    let userId = req.body._id;
+    const mail = await providerRegister.findOne({ _id: userId });
+    console.log(mail);
+    if (!mail) {
+      res
+        .status(404)
+        .json({ status: 400, message: "This User not exist", data: null });
+    } else {
+      const currentTime = new Date().getTime();
+      const Diff = mail.expireIn - currentTime;
+      if (Diff < 0) {
+        res.status(401).json({
+          status: 401,
+          message: "token expire with in one month",
+          data: null,
+        });
+      } else {
+        const token = await mail.generateAuthToken();
+        const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000;
+        const expirationTime = new Date().getTime() + oneMonthInMillis;
+        const getmens = await providerRegister.findOneAndUpdate(
+          { _id: userId },
+          { $set: { expireIn: expirationTime } },
+          { new: true }
+        );
+
+        res.status(200).json({
+          status: 200,
+          message: "Successfully refreshed token",
+          data: { isAuthorized: true },
+        });
+      }
     }
   } catch (error) {
     console.log(error);
@@ -619,10 +670,26 @@ router.get("/get-item-byid/:id", async (req, res) => {
     console.log(error);
     res.status(500).json({
       status: 500,
-      message: "internal server error", // Corrected typo in the message
+      message: "internal server error",
       data: null,
     });
   }
 });
-
+router.get("/get-catogray", async (req, res) => {
+  try {
+    const data = await Catagres.find({});
+    res.status(200).json({
+      status: 200,
+      message: "All category details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
 module.exports = router;

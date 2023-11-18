@@ -26,20 +26,18 @@ const empoleeSchema = new mongoose.Schema(
     },
     isVarified: Boolean,
     isNewUser: Boolean,
-    tokens: [
-      {
-        token: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+
+    token: {
+      type: String,
+    },
+
     password: String,
     Phone: Number,
     address: String,
     ProfileImage: String,
     date: String,
     fullname: String,
+    expireIn: Number,
   },
   {
     timestamps: true,
@@ -55,16 +53,17 @@ const empoleeSchema = new mongoose.Schema(
 
 empoleeSchema.methods.generateAuthToken = async function () {
   try {
-    const token = await jwt.sign({ _id: this._id.toString() }, SECRET, {
-      expiresIn: "10m",
+    const token = jwt.sign({ _id: this._id.toString() }, SECRET, {
+      expiresIn: "30d",
     });
-    this.tokens = this.tokens.concat({ token: token });
+
+    this.token = token;
     await this.save();
 
     return token;
   } catch (error) {
     console.log(error);
-    console.log("the error part");
+    console.log("Error in token generation");
   }
 };
 
