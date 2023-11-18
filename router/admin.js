@@ -560,10 +560,12 @@ router.put("/update-items/:_id", upload.single("image"), async (req, res) => {
 router.post("/add-catogray", async (req, res) => {
   try {
     const category = req.body.category;
+    let Id = Math.floor(Math.random() * 10000000) + 1;
     const mail = await Catagres.findOne({ category: category });
     if (!mail) {
       const CatagresEmp = new Catagres({
         category: req.body.category,
+        categoryId: Id,
       });
       const addCatagres = await CatagresEmp.save();
       res.status(201).json({
