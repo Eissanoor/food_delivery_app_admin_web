@@ -567,6 +567,7 @@ router.post("/add-catogray", async (req, res) => {
         category: req.body.category,
         categoryId: Id,
       });
+      //
       const addCatagres = await CatagresEmp.save();
       res.status(201).json({
         status: 201,
