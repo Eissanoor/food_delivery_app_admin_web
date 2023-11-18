@@ -241,7 +241,6 @@ router.post("/refresh-token", auth, async (req, res) => {
           data: null,
         });
       } else {
-        const token = await mail.generateAuthToken();
         const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000;
         const expirationTime = new Date().getTime() + oneMonthInMillis;
         const getmens = await providerRegister.findOneAndUpdate(
@@ -635,7 +634,10 @@ router.delete("/delete-catogray/:category", async (req, res) => {
 });
 router.get("/get-allcatogray", async (req, res) => {
   try {
-    const data = await Catagres.find({}, { category: 1, categoryId:1, _id: 0 });
+    const data = await Catagres.find(
+      {},
+      { category: 1, categoryId: 1, _id: 0 }
+    );
     res.status(200).json({
       status: 200,
       message: "category details",
