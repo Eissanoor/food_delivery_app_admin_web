@@ -235,7 +235,7 @@ router.post("/refresh-token", auth, async (req, res) => {
       if (Diff < 0) {
         res.status(401).json({
           status: 401,
-          message: "token expire with in one month",
+          message: "your token expired with in one month",
           data: null,
         });
       } else {

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-// const autoIncrement = require("mongoose-auto-increment");
+
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -44,12 +44,7 @@ const empoleeSchema = new mongoose.Schema(
   }
 );
 
-// Apply the auto-increment plugin to the schema
-// empoleeSchema.plugin(autoIncrement.plugin, {
-//   model: "SignUp",
-//   field: "Id",
-//   startAt: 1,
-// });
+
 
 empoleeSchema.methods.generateAuthToken = async function () {
   try {
