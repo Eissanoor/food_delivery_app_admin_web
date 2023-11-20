@@ -708,7 +708,15 @@ router.get("/get-item-byid/:id", async (req, res) => {
 router.get("/get-food-items-by-category-id/:categoryId", async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    const data = await MenuItem.findOne({ categoryId: categoryId });
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
+    const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 items per page if not specified
+
+    const skip = (page - 1) * pageSize;
+
+    const data = await MenuItem.find({ categoryId: categoryId })
+      .skip(skip)
+      .limit(pageSize);
+
     res.status(200).json({
       status: 200,
       message: "item details",
@@ -723,6 +731,7 @@ router.get("/get-food-items-by-category-id/:categoryId", async (req, res) => {
     });
   }
 });
+
 router.get("/get-catogray", async (req, res) => {
   try {
     const data = await Catagres.find({});
