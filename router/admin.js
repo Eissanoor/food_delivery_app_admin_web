@@ -731,7 +731,6 @@ router.get("/get-food-items-by-category-id/:categoryId", async (req, res) => {
     });
   }
 });
-
 router.get("/get-catogray", async (req, res) => {
   try {
     const data = await Catagres.find({});
