@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const menuitemSchema = new mongoose.Schema(
   {
-    itemName: {
+    foodName: {
       type: String,
       required: true,
     },
@@ -11,7 +11,7 @@ const menuitemSchema = new mongoose.Schema(
       required: true,
     },
     description: String,
-    category: {
+    categoryId: {
       type: String,
       required: true,
     },

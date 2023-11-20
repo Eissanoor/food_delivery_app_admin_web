@@ -464,8 +464,8 @@ cron.schedule("59 23 * * *", async () => {
 });
 router.post("/add-items", upload.single("image"), async (req, res) => {
   try {
-    const itemName = req.body.itemName;
-    const itemNameexist = await MenuItem.findOne({ itemName: itemName });
+    const foodName = req.body.foodName;
+    const itemNameexist = await MenuItem.findOne({ foodName: foodName });
     if (!itemNameexist) {
       const file = req.file;
       let ManuImage = null;
@@ -478,10 +478,10 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
       }
 
       const MenuEmp = new MenuItem({
-        itemName: req.body.itemName,
+        foodName: req.body.foodName,
         price: req.body.price,
         description: req.body.description,
-        category: req.body.category,
+        categoryId: req.body.categoryId,
         image: ManuImage,
       });
       const menu = await MenuEmp.save();
