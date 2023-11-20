@@ -705,6 +705,24 @@ router.get("/get-item-byid/:id", async (req, res) => {
     });
   }
 });
+router.get("/get-food-items-by-category-id/:categoryId", async (req, res) => {
+  try {
+    const categoryId = req.params.categoryId;
+    const data = await MenuItem.findOne({ categoryId: categoryId });
+    res.status(200).json({
+      status: 200,
+      message: "item details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internal server error",
+      data: null,
+    });
+  }
+});
 router.get("/get-catogray", async (req, res) => {
   try {
     const data = await Catagres.find({});
