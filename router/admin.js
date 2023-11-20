@@ -612,10 +612,12 @@ router.post(
     }
   }
 );
-router.delete("/delete-catogray/:category", async (req, res) => {
+router.delete("/delete-catogray/:categoryId", async (req, res) => {
   try {
-    const category = req.params.category;
-    const mail = await Catagres.deleteOne({ category: category });
+    const categoryId = req.params.categoryId;
+    const mail = await Catagres.deleteOne({ categoryId: categoryId });
+    const initems = await MenuItem.deleteMany({ categoryId: categoryId });
+    console.log(initems);
     if (mail.deletedCount === 1) {
       res.status(200).json({
         status: 200,
