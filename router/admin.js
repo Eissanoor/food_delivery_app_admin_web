@@ -66,7 +66,7 @@ router.post("/signUp", async (req, res) => {
       address: null,
       Phone: null,
       isVarified: false,
-      isNewUser: false,
+      isNewUser: true,
     });
     const registered = await registerEmp.save();
     const data = await providerRegister
@@ -371,7 +371,7 @@ router.put(
       }
       const updatedUser = await providerRegister.findOneAndUpdate(
         { _id: id },
-        { ...req.body, ProfileImage: profileImageURL, isNewUser: true },
+        { ...req.body, ProfileImage: profileImageURL, isNewUser: false },
         { new: true, runValidators: true }
       );
 
