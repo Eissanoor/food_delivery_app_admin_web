@@ -671,6 +671,23 @@ router.get("/get-allitem", async (req, res) => {
     });
   }
 });
+router.get("/get-random-five-fooditem", async (req, res) => {
+  try {
+    const data = await MenuItem.aggregate([{ $sample: { size: 5 } }]);
+    res.status(200).json({
+      status: 200,
+      message: "Item details",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
 router.delete("/delete-items/:itemName", async (req, res) => {
   try {
     const itemName = req.params.itemName;
