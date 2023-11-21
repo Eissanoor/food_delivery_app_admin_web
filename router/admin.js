@@ -18,6 +18,7 @@ const MenuItem = require("../model/menuitem");
 const cors = require("cors");
 const Catagres = require("../model/addcatagres");
 const Counting = require("../model/counting");
+const WishList = require("../model/wishlist");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -763,6 +764,73 @@ router.get("/get-catogray", async (req, res) => {
     res.status(500).json({
       status: 500,
       message: "internel server error",
+      data: null,
+    });
+  }
+});
+router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
+  try {
+    const foodId = req.body.foodId;
+    const WishListexist = await WishList.findOne({ foodId: foodId });
+    if (!WishListexist) {
+      const WishListAdd = new WishList({
+        userId: req.body.userId,
+        foodId: req.body.foodId,
+      });
+      const menu = await WishListAdd.save();
+      res.status(201).json({
+        status: 201,
+        message: "WishList has been Added",
+        data: WishListAdd,
+      });
+    } else {
+      const result = await WishList.deleteOne({ foodId: foodId });
+      if (result.deletedCount === 1) {
+        res.status(200).json({
+          status: 200,
+          message: "WishList delete Successfully",
+          data: null,
+        });
+      } else {
+        res
+          .status(404)
+          .json({ status: 404, message: "Food is not found", data: null });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({
+      status: 400,
+      message: "Required parameter is missing",
+      data: null,
+    });
+  }
+});
+router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const data = await WishList.findOne({ userId: userId });
+    if (data) {
+      const data1 = await WishList.find({ userId: userId })
+        .populate("userId", "_id email fullname")
+        .populate("foodId", "_id foodName categoryId");
+      res.status(200).json({
+        status: 200,
+        message: "WishList User details",
+        data: data1,
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: "WishList Is not found",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internal server error",
       data: null,
     });
   }
