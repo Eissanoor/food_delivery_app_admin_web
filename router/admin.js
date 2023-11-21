@@ -811,9 +811,11 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
     const userId = req.params.userId;
     const data = await WishList.findOne({ userId: userId });
     if (data) {
-      const data1 = await WishList.find({ userId: userId })
-        .populate("userId", "_id email fullname")
-        .populate("foodId", "_id foodName categoryId");
+      const data1 = await WishList.find(
+        { userId: userId },
+        { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+      ).populate("foodId");
+
       res.status(200).json({
         status: 200,
         message: "WishList User details",
