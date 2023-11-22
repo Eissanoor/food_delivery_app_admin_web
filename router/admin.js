@@ -1,5 +1,6 @@
 const express = require("express");
 const router = new express.Router();
+const { ObjectId } = require("mongodb");
 const bodyparser = require("body-parser");
 const nodemailer = require("nodemailer");
 const validator = require("validator");
@@ -850,34 +851,34 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
 
 router.get("/get-foodid-to-wishlist", async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const foodId = req.query.foodId;
-    const data = await WishList.findOne({ userId: userId });
-    if (data) {
-      const data1 = await WishList.find(
-        { userId: userId, foodId: foodId },
-        { foodId: 1, _id: 0 }
-      );
+    const userId = String(req.query.userId);
+    const foodId = String(req.query.foodId);
 
+    const data = await WishList.findOne({ userId, userId });
+    console.log(data);
+    const food = await WishList.findOne({ foodId, foodId });
+    console.log(food);
+    if (!data) {
       res.status(200).json({
         status: 200,
         message: "WishList Food IDs",
-        data: data1,
+        data: { isFavorite: false },
       });
     } else {
-      res.status(404).json({
-        status: 404,
-        message: "WishList Is not found",
-        data: null,
+      res.status(200).json({
+        status: 200,
+        message: "WishList Food IDs",
+        data: { isFavorite: true },
       });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: "internal server error",
-      data: null,
-    });
+     res.status(200).json({
+       status: 200,
+       message: "WishList Food IDs",
+       data: { isFavorite: false },
+     });
   }
 });
+
 module.exports = router;
