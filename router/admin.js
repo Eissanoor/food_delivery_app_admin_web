@@ -848,22 +848,16 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
   }
 });
 
-router.get("/get-foodid-to-wishlist/:userId", async (req, res) => {
+router.get("/get-foodid-to-wishlist", async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
-    const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 items per page if not specified
-
-    const skip = (page - 1) * pageSize;
+    const userId = req.query.userId;
+    const foodId = req.query.foodId;
     const data = await WishList.findOne({ userId: userId });
     if (data) {
       const data1 = await WishList.find(
-        { userId: userId },
-        { foodId:1,_id:0 }
-      )
-       
-        .skip(skip)
-        .limit(pageSize);
+        { userId: userId, foodId: foodId },
+        { foodId: 1, _id: 0 }
+      );
 
       res.status(200).json({
         status: 200,
