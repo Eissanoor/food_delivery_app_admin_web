@@ -781,7 +781,7 @@ router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
       res.status(201).json({
         status: 201,
         message: "WishList has been Added",
-        data: WishListAdd,
+        data: null,
       });
     } else {
       const result = await WishList.deleteOne({ foodId: foodId });
@@ -809,29 +809,32 @@ router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
 router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
-    const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 items per page if not specified
-
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
     const skip = (page - 1) * pageSize;
+
     const data = await WishList.findOne({ userId: userId });
+
     if (data) {
       const data1 = await WishList.find(
         { userId: userId },
-        { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+        { _id: 0, userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
       )
         .populate("foodId")
         .skip(skip)
-        .limit(pageSize);;
+        .limit(pageSize);
+
+      const foodIdArray = data1.map((item) => item.foodId);
 
       res.status(200).json({
         status: 200,
         message: "WishList User details",
-        data: data1,
+        data: foodIdArray,
       });
     } else {
       res.status(404).json({
         status: 404,
-        message: "WishList Is not found",
+        message: "WishList is not found",
         data: null,
       });
     }
@@ -839,11 +842,12 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
     console.log(error);
     res.status(500).json({
       status: 500,
-      message: "internal server error",
+      message: "Internal server error",
       data: null,
     });
   }
 });
+
 router.get("/get-foodid-to-wishlist/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
