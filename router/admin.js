@@ -858,7 +858,7 @@ router.get("/get-foodid-to-wishlist", async (req, res) => {
     console.log(data);
     const food = await WishList.findOne({ foodId, foodId });
     console.log(food);
-    if (!data) {
+    if (!data || !food) {
       res.status(200).json({
         status: 200,
         message: "WishList Food IDs",
