@@ -20,6 +20,7 @@ const cors = require("cors");
 const Catagres = require("../model/addcatagres");
 const Counting = require("../model/counting");
 const WishList = require("../model/wishlist");
+const AddToCart= require("../model/addtocart")
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -848,16 +849,12 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
     });
   }
 });
-
 router.get("/get-foodid-to-wishlist", async (req, res) => {
   try {
     const userId = String(req.query.userId);
     const foodId = String(req.query.foodId);
-
     const data = await WishList.findOne({ userId, userId });
-    console.log(data);
     const food = await WishList.findOne({ foodId, foodId });
-    console.log(food);
     if (!data || !food) {
       res.status(200).json({
         status: 200,
@@ -880,5 +877,84 @@ router.get("/get-foodid-to-wishlist", async (req, res) => {
      });
   }
 });
+router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
+  try {
+    const foodId = req.body.foodId;
+    const AddToCartexist = await AddToCart.findOne({ foodId: foodId });
+    if (!AddToCartexist) {
+      const AddToCartexistAdd = new AddToCart({
+        userId: req.body.userId,
+        foodId: req.body.foodId,
+        status:"Active"
+      });
+      const menu = await AddToCartexistAdd.save();
+      res.status(201).json({
+        status: 201,
+        message: "AddToCart has been Added",
+        data: null,
+      });
+    } else {
+      const result = await AddToCart.deleteOne({ foodId: foodId });
+      if (result.deletedCount === 1) {
+        res.status(200).json({
+          status: 200,
+          message: "AddToCart delete Successfully",
+          data: null,
+        });
+      } else {
+        res
+          .status(404)
+          .json({ status: 404, message: "Food is not found", data: null });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({
+      status: 400,
+      message: "Required parameter is missing",
+      data: null,
+    });
+  }
+});
+router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * pageSize;
 
+    const data = await AddToCart.findOne({ userId: userId });
+
+    if (data) {
+      const data1 = await AddToCart.find(
+        { userId: userId },
+        { _id: 0, userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+      )
+        .populate("foodId")
+        .skip(skip)
+        .limit(pageSize);
+
+      const foodIdArray = data1.map((item) => item.foodId);
+
+      res.status(200).json({
+        status: 200,
+        message: "addtocart User details",
+        data: foodIdArray,
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: "addtocart is not found",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
 module.exports = router;
