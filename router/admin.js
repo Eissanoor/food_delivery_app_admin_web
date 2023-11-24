@@ -20,7 +20,7 @@ const cors = require("cors");
 const Catagres = require("../model/addcatagres");
 const Counting = require("../model/counting");
 const WishList = require("../model/wishlist");
-const AddToCart= require("../model/addtocart")
+const AddToCart = require("../model/addtocart");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -870,11 +870,11 @@ router.get("/get-foodid-to-wishlist", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-     res.status(200).json({
-       status: 200,
-       message: "WishList Food IDs",
-       data: { isFavorite: false },
-     });
+    res.status(200).json({
+      status: 200,
+      message: "WishList Food IDs",
+      data: { isFavorite: false },
+    });
   }
 });
 router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
@@ -885,7 +885,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
       const AddToCartexistAdd = new AddToCart({
         userId: req.body.userId,
         foodId: req.body.foodId,
-        status:"Active"
+        status: "Active",
       });
       const menu = await AddToCartexistAdd.save();
       res.status(201).json({
@@ -954,6 +954,34 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
       status: 500,
       message: "Internal server error",
       data: null,
+    });
+  }
+});
+router.get("/get-foodid-to-addtocart", async (req, res) => {
+  try {
+    const userId = String(req.query.userId);
+    const foodId = String(req.query.foodId);
+    const data = await AddToCart.findOne({ userId, userId });
+    const food = await AddToCart.findOne({ foodId, foodId });
+    if (!data || !food) {
+      res.status(200).json({
+        status: 200,
+        message: "AddToCart Food IDs",
+        data: { isFavorite: false },
+      });
+    } else {
+      res.status(200).json({
+        status: 200,
+        message: "AddToCart Food IDs",
+        data: { isFavorite: true },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(200).json({
+      status: 200,
+      message: "AddToCart Food IDs",
+      data: { isFavorite: false },
     });
   }
 });
