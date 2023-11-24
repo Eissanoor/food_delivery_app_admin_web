@@ -944,7 +944,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
     } else {
       res.status(404).json({
         status: 404,
-        message: "addtocart is not found",
+        message: "It seems like your cart is empty",
         data: null,
       });
     }
