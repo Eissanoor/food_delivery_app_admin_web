@@ -782,7 +782,7 @@ router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
       const menu = await WishListAdd.save();
       res.status(201).json({
         status: 201,
-        message: "WishList has been Added",
+        message: "Item successfully added to the wishlist",
         data: null,
       });
     } else {
@@ -790,13 +790,17 @@ router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
       if (result.deletedCount === 1) {
         res.status(200).json({
           status: 200,
-          message: "WishList delete Successfully",
+          message: "Item successfully removed from wishlist",
           data: null,
         });
       } else {
         res
           .status(404)
-          .json({ status: 404, message: "Food is not found", data: null });
+          .json({
+            status: 404,
+            message: "It seems like you have no favorite foods",
+            data: null,
+          });
       }
     }
   } catch (e) {
@@ -836,7 +840,7 @@ router.get("/get-food-item-to-wishlist/:userId", async (req, res) => {
     } else {
       res.status(404).json({
         status: 404,
-        message: "WishList is not found",
+        message: "It seems like you have no favorite foods",
         data: null,
       });
     }
@@ -890,7 +894,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
       const menu = await AddToCartexistAdd.save();
       res.status(201).json({
         status: 201,
-        message: "AddToCart has been Added",
+        message: "Successfully added item into cart",
         data: null,
       });
     } else {
@@ -898,7 +902,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
       if (result.deletedCount === 1) {
         res.status(200).json({
           status: 200,
-          message: "AddToCart delete Successfully",
+          message: "Successfully deleted item from the cart",
           data: null,
         });
       } else {
