@@ -967,13 +967,13 @@ router.get("/get-foodid-to-addtocart", async (req, res) => {
       res.status(200).json({
         status: 200,
         message: "AddToCart Food IDs",
-        data: { isFavorite: false },
+        data: { isInCart: false },
       });
     } else {
       res.status(200).json({
         status: 200,
         message: "AddToCart Food IDs",
-        data: { isFavorite: true },
+        data: { isInCart: true },
       });
     }
   } catch (error) {
@@ -981,7 +981,7 @@ router.get("/get-foodid-to-addtocart", async (req, res) => {
     res.status(200).json({
       status: 200,
       message: "AddToCart Food IDs",
-      data: { isFavorite: false },
+      data: { isInCart: false },
     });
   }
 });
