@@ -794,13 +794,11 @@ router.post("/add-or-remove-food-item-to-wishlist", async (req, res) => {
           data: null,
         });
       } else {
-        res
-          .status(404)
-          .json({
-            status: 404,
-            message: "It seems like you have no favorite foods",
-            data: null,
-          });
+        res.status(404).json({
+          status: 404,
+          message: "It seems like you have no favorite foods",
+          data: null,
+        });
       }
     }
   } catch (e) {
@@ -937,9 +935,12 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
         .populate("foodId")
         .skip(skip)
         .limit(pageSize);
+      
+       const foodIdArray = data1
+         .filter((item) => item.foodId && item.status === "Active")
+         .map((item) => item.foodId);
 
-      const foodIdArray = data1.map((item) => item.foodId);
-
+       console.log(foodIdArray);
       res.status(200).json({
         status: 200,
         message: "addtocart User details",
