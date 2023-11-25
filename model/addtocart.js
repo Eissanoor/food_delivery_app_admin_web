@@ -8,6 +8,7 @@ const addtocartSchema = new mongoose.Schema(
     },
     foodId: { type: Schema.Types.ObjectId, ref: "menuitem", require: true },
     status: String,
+    quantity:Number
   },
   {
     timestamps: true,

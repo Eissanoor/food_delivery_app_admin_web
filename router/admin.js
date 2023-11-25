@@ -888,6 +888,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
         userId: req.body.userId,
         foodId: req.body.foodId,
         status: "Active",
+        quantity: 1,
       });
       const menu = await AddToCartexistAdd.save();
       res.status(201).json({
@@ -935,12 +936,11 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
         .populate("foodId")
         .skip(skip)
         .limit(pageSize);
-      
-       const foodIdArray = data1
-         .filter((item) => item.foodId && item.status === "Active")
-         .map((item) => item.foodId);
 
-       console.log(foodIdArray);
+      const foodIdArray = data1
+        .filter((item) => item.foodId && item.status === "Active")
+        .map((item) => item.foodId);
+
       res.status(200).json({
         status: 200,
         message: "addtocart User details",
@@ -990,4 +990,84 @@ router.get("/get-foodid-to-addtocart", async (req, res) => {
     });
   }
 });
+router.put("/food-item-addtocart-quantity-inc", async (req, res) => {
+  try {
+    const userId = String(req.query.userId);
+    const foodId = String(req.query.foodId);
+    const data = await AddToCart.findOne({ userId, userId });
+    const food = await AddToCart.findOne({ foodId, foodId });
+    if (!data || !food) {
+      res.status(200).json({
+        status: 200,
+        message: "Not found",
+        data: null,
+      });
+    } else {
+      const updatedCount = await AddToCart.findOneAndUpdate(
+        { userId: userId, foodId: foodId },
+        { $inc: { quantity: 1 } },
+        { new: true }
+      );
+      res.status(200).json({
+        status: 200,
+        message: "quantity added",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(200).json({
+      status: 200,
+      message: "Not into cart",
+      data: null,
+    });
+  }
+});
+router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
+  try {
+    const userId = String(req.query.userId);
+    const foodId = String(req.query.foodId);
+
+    
+    const data = await AddToCart.findOne({ userId, foodId });
+
+    if (!data) {
+      res.status(404).json({
+        status: 404,
+        message: "Item not found in the cart",
+        data: null,
+      });
+    } else {
+      
+      if (data.quantity > 1) {
+        
+        const updatedCount = await AddToCart.findOneAndUpdate(
+          { userId: userId, foodId: foodId },
+          { $inc: { quantity: -1 } },
+          { new: true }
+        );
+
+        res.status(200).json({
+          status: 200,
+          message: "Quantity decremented",
+          data: null,
+        });
+      } else {
+        res.status(200).json({
+          status: 200,
+          message: "Quantity cannot be less than 1",
+          data: null,
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(200).json({
+      status: 200,
+      message: "Not into cart",
+      data: null,
+    });
+  }
+});
+
 module.exports = router;
