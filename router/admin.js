@@ -231,8 +231,10 @@ router.post("/refresh-token", auth, async (req, res) => {
   try {
     console.log(req.token);
     let userId = req.body._id;
-    const mail = await providerRegister.findOne({ _id: userId,token:req.token });
-    console.log(mail);
+    const mail = await providerRegister.findOne({
+      _id: userId,
+      token: req.token,
+    });
     if (!mail) {
       res
         .status(404)
@@ -931,7 +933,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
     const skip = (page - 1) * pageSize;
 
     const data = await AddToCart.findOne({ userId: userId });
-    console.log(data);
+    
     if (data) {
       const data1 = await AddToCart.find(
         { userId: userId },
@@ -939,7 +941,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
       )
         .populate("foodId")
         .skip(skip);
-      console.log(data1);
+
       const foodIdArray = data1
         .filter((item) => item.foodId && item.status === "Active")
         .map((item) => ({
@@ -1075,25 +1077,49 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
 });
 router.post("/place-order", async (req, res) => {
   try {
-    const AddToCartexistAdd = new Orders({
-      userId: req.body.userId,
+    const userId = req.body.userId;
+    const address = req.body.address;
+    const totalPrice = req.body.totalPrice;
+
+    const newOrder = new Orders({
+      userId: userId,
       status: "pending",
-      address: req.body.address,
-      totalPrice: req.body.totalPrice,
+      address: address,
+      totalPrice: totalPrice,
     });
 
-    const menu = await AddToCartexistAdd.save();
-    const AddToOrderItem = new OrderItem({
-      orderId: menu._id,
-      userId: menu.userId,
-    });
+    const savedOrder = await newOrder.save();
 
-    const OrderI = await AddToOrderItem.save();
-    console.log(OrderI);
+    const cartItems = await AddToCart.find(
+      { userId: userId },
+      { _id: 0, userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+    ).populate("foodId");
+
+
+    const orderItems = [];
+
+    for (const item of cartItems) {
+      if (item.foodId && item.status === "Active") {
+        const orderItem = new OrderItem({
+          orderId: savedOrder._id,
+          foodId: item.foodId._id,
+        });
+
+        orderItems.push(orderItem);
+      }
+    }
+
+    const savedOrderItems = await OrderItem.insertMany(orderItems);
+const updatedUser = await AddToCart.updateMany(
+  { userId: userId },
+  { $set: { ...req.body, status: "ordered" } },
+  { new: true, runValidators: true }
+);
+
     res.status(201).json({
       status: 201,
       message: "Successfully added place Order",
-      data: { orderId: menu._id },
+      data: savedOrder,
     });
   } catch (e) {
     console.log(e);
@@ -1104,4 +1130,6 @@ router.post("/place-order", async (req, res) => {
     });
   }
 });
+
+
 module.exports = router;
