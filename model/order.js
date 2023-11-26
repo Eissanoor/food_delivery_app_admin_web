@@ -1,4 +1,5 @@
 const { Schema, mongoose } = require("mongoose");
+const { setSourceMapRange } = require("typescript");
 const orderSchema = new mongoose.Schema(
   {
     userId: {
@@ -8,7 +9,8 @@ const orderSchema = new mongoose.Schema(
     },
     
     status: String,
-    totalPrice: Number,
+        totalPrice: Number,
+    address:String
   },
   {
     timestamps: true,

@@ -890,6 +890,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
         userId: req.body.userId,
         foodId: req.body.foodId,
         status: "Active",
+
         quantity: 1,
       });
       const menu = await AddToCartexistAdd.save();
@@ -929,7 +930,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
     const skip = (page - 1) * pageSize;
 
     const data = await AddToCart.findOne({ userId: userId });
-
+    console.log(data);
     if (data) {
       const data1 = await AddToCart.find(
         { userId: userId },
@@ -937,7 +938,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
       )
         .populate("foodId")
         .skip(skip);
-
+      console.log(data1);
       const foodIdArray = data1
         .filter((item) => item.foodId && item.status === "Active")
         .map((item) => ({
@@ -945,7 +946,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
           status: item.status,
           quantity: item.quantity,
         }));
-     
+
       res.status(200).json({
         status: 200,
         message: "addtocart User details",
@@ -1076,6 +1077,7 @@ router.post("/place-order", async (req, res) => {
     const AddToCartexistAdd = new Orders({
       userId: req.body.userId,
       status: "pending",
+      address: req.body.address,
       totalPrice: req.body.totalPrice,
     });
 
