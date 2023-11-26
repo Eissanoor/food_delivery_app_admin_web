@@ -21,6 +21,8 @@ const Catagres = require("../model/addcatagres");
 const Counting = require("../model/counting");
 const WishList = require("../model/wishlist");
 const AddToCart = require("../model/addtocart");
+const Orders = require("../model/order");
+const OrderItem = require("../model/orderitem");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -934,13 +936,16 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
         { _id: 0, userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
       )
         .populate("foodId")
-        .skip(skip)
-        .limit(pageSize);
+        .skip(skip);
 
       const foodIdArray = data1
         .filter((item) => item.foodId && item.status === "Active")
-        .map((item) => item.foodId);
-
+        .map((item) => ({
+          foodId: item.foodId,
+          status: item.status,
+          quantity: item.quantity,
+        }));
+     
       res.status(200).json({
         status: 200,
         message: "addtocart User details",
@@ -1028,7 +1033,6 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
     const userId = String(req.query.userId);
     const foodId = String(req.query.foodId);
 
-    
     const data = await AddToCart.findOne({ userId, foodId });
 
     if (!data) {
@@ -1038,9 +1042,7 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
         data: null,
       });
     } else {
-      
       if (data.quantity > 1) {
-        
         const updatedCount = await AddToCart.findOneAndUpdate(
           { userId: userId, foodId: foodId },
           { $inc: { quantity: -1 } },
@@ -1069,5 +1071,34 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
     });
   }
 });
+router.post("/place-order", async (req, res) => {
+  try {
+    const AddToCartexistAdd = new Orders({
+      userId: req.body.userId,
+      status: "pending",
+      totalPrice: req.body.totalPrice,
+    });
 
+    const menu = await AddToCartexistAdd.save();
+    const AddToOrderItem = new OrderItem({
+      orderId: menu._id,
+      userId: menu.userId,
+    });
+
+    const OrderI = await AddToOrderItem.save();
+    console.log(OrderI);
+    res.status(201).json({
+      status: 201,
+      message: "Successfully added place Order",
+      data: { orderId: menu._id },
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({
+      status: 400,
+      message: "Required parameter is missing",
+      data: null,
+    });
+  }
+});
 module.exports = router;
