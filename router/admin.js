@@ -236,7 +236,7 @@ router.post("/refresh-token", auth, async (req, res) => {
     if (!mail) {
       res
         .status(404)
-        .json({ status: 400, message: "This User not exist", data: null });
+        .json({ status: 404, message: "This User not exist", data: null });
     } else {
       const currentTime = new Date().getTime();
       const Diff = mail.expireIn - currentTime;
