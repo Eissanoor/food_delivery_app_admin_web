@@ -9,13 +9,11 @@ var auth = async (req, res, next) => {
     var token = req.headers.authorization;
 
     if (!token) {
-      return res
-        .status(401)
-        .json({
-          status: 401,
-          message: "Unauthorized: Token not provided",
-          data: null,
-        });
+      return res.status(401).json({
+        status: 401,
+        message: "Unauthorized: Token not provided",
+        data: null,
+      });
     }
 
     token = token.split(" ")[1];
@@ -25,13 +23,11 @@ var auth = async (req, res, next) => {
     const user = await Register.findOne({ _id: verifiedUser._id });
 
     if (!user) {
-      return res
-        .status(401)
-        .json({
-          status: 401,
-          message: "Unauthorized: User not found",
-          data: null,
-        });
+      return res.status(401).json({
+        status: 401,
+        message: "Unauthorized: User not found",
+        data: null,
+      });
     }
 
     req.token = token;
@@ -40,13 +36,11 @@ var auth = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res
-      .status(401)
-      .json({
-        status: 401,
-        message: "Unauthorized: Invalid token",
-        data: null,
-      });
+    res.status(401).json({
+      status: 401,
+      message: "Unauthorized: Invalid token",
+      data: null,
+    });
   }
 };
 module.exports = auth;

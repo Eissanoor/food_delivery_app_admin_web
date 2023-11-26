@@ -229,8 +229,9 @@ router.post("/resend-otp", async (req, res) => {
 });
 router.post("/refresh-token", auth, async (req, res) => {
   try {
+    console.log(req.token);
     let userId = req.body._id;
-    const mail = await providerRegister.findOne({ _id: userId });
+    const mail = await providerRegister.findOne({ _id: userId,token:req.token });
     console.log(mail);
     if (!mail) {
       res
