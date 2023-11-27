@@ -1140,20 +1140,20 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
     if (data) {
       const data1 = await Orders.find(
         { userId: userId },
-        { createdAt: 0, updatedAt: 0, __v: 0, _id: 0, Id: 0, email: 0 }
+        { createdAt: 0, updatedAt: 0, __v: 0, Id: 0, email: 0 }
       )
-        .populate("userId")
+        .populate("userId", " -_id fullname ProfileImage Phone ")
         .skip(skip);
-      console.log(data1);
+      
       const userIdArray = data1
         .filter((item) => item.userId && item.status === "pending")
         .map((item) => ({
-          userId: item.userId,
-          totalPrice: item.totalPrice,
+          user: item.userId,
           orderId: item._id,
+          totalPrice: item.totalPrice,
           address: item.address,
         }));
-      console.log(userIdArray);
+      
       res.status(200).json({
         status: 200,
         message: "orders details",
