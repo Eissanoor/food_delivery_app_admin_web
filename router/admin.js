@@ -933,7 +933,7 @@ router.get("/get-food-item-to-addtocart/:userId", async (req, res) => {
     const skip = (page - 1) * pageSize;
 
     const data = await AddToCart.findOne({ userId: userId });
-    
+
     if (data) {
       const data1 = await AddToCart.find(
         { userId: userId },
@@ -975,26 +975,25 @@ router.get("/get-foodid-to-addtocart", async (req, res) => {
   try {
     const userId = String(req.query.userId);
     const foodId = String(req.query.foodId);
-    const data = await AddToCart.findOne({ userId, userId });
-    const food = await AddToCart.findOne({ foodId, foodId });
-    if (!data || !food) {
+    const cartItem = await AddToCart.findOne({ userId, foodId });
+    if (!cartItem || cartItem.status !== "Active") {
       res.status(200).json({
         status: 200,
         message: "AddToCart Food IDs",
         data: { isInCart: false },
       });
     } else {
-      res.status(200).json({
-        status: 200,
-        message: "AddToCart Food IDs",
-        data: { isInCart: true },
-      });
+        res.status(200).json({
+          status: 200,
+          message: "AddToCart Food IDs",
+          data: { isInCart: true },
+        });
     }
   } catch (error) {
     console.log(error);
-    res.status(200).json({
-      status: 200,
-      message: "AddToCart Food IDs",
+    res.status(500).json({
+      status: 500,
+      message: "Internal Server Error",
       data: { isInCart: false },
     });
   }
@@ -1095,7 +1094,6 @@ router.post("/place-order", async (req, res) => {
       { _id: 0, userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
     ).populate("foodId");
 
-
     const orderItems = [];
 
     for (const item of cartItems) {
@@ -1110,11 +1108,11 @@ router.post("/place-order", async (req, res) => {
     }
 
     const savedOrderItems = await OrderItem.insertMany(orderItems);
-const updatedUser = await AddToCart.updateMany(
-  { userId: userId },
-  { $set: { ...req.body, status: "ordered" } },
-  { new: true, runValidators: true }
-);
+    const updatedUser = await AddToCart.updateMany(
+      { userId: userId },
+      { $set: { ...req.body, status: "ordered" } },
+      { new: true, runValidators: true }
+    );
 
     res.status(201).json({
       status: 201,
@@ -1130,6 +1128,52 @@ const updatedUser = await AddToCart.updateMany(
     });
   }
 });
+router.get("/get-order-by-userid/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * pageSize;
 
+    const data = await Orders.findOne({ userId: userId });
+
+    if (data) {
+      const data1 = await Orders.find(
+        { userId: userId },
+        { createdAt: 0, updatedAt: 0, __v: 0, _id: 0, Id: 0, email: 0 }
+      )
+        .populate("userId")
+        .skip(skip);
+      console.log(data1);
+      const userIdArray = data1
+        .filter((item) => item.userId && item.status === "pending")
+        .map((item) => ({
+          userId: item.userId,
+          totalPrice: item.totalPrice,
+          orderId: item._id,
+          address: item.address,
+        }));
+      console.log(userIdArray);
+      res.status(200).json({
+        status: 200,
+        message: "orders details",
+        data: userIdArray,
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        message: "It seems like your orders is empty",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
 
 module.exports = router;
