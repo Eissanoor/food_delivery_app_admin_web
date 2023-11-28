@@ -1144,7 +1144,7 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
       )
         .populate("userId", " -_id fullname ProfileImage Phone ")
         .skip(skip);
-
+      console.log(data1);
       const userIdArray = data1
         .filter((item) => item.userId && item.status === "pending")
         .map((item) => ({
@@ -1153,6 +1153,7 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
           totalPrice: item.totalPrice,
           address: item.address,
           status: item.status,
+          createdAt: item.createdAt,
         }));
 
       res.status(200).json({
@@ -1176,5 +1177,24 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
     });
   }
 });
+router.get("/get-allorder-pending", async (req, res) => {
+  try {
+    const data = await Orders.find({ status: "pending" });
 
+    console.log(data);
+
+    res.status(200).json({
+      status: 200,
+      message: "All pending Orders ",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
 module.exports = router;
