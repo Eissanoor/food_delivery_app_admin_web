@@ -1144,7 +1144,7 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
       )
         .populate("userId", " -_id fullname ProfileImage Phone ")
         .skip(skip);
-      console.log(data1);
+
       const userIdArray = data1
         .filter((item) => item.userId && item.status === "pending")
         .map((item) => ({
@@ -1179,13 +1179,59 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
 });
 router.get("/get-allorder-pending", async (req, res) => {
   try {
-    const data = await Orders.find({ status: "pending" });
-
-    console.log(data);
-
+    const data = await Orders.find(
+      { status: "pending" },
+      { updatedAt: 0, __v: 0 }
+    )
+      .sort({ createdAt: -1 })
+      .populate("userId", " -_id  fullname ProfileImage Phone ");
     res.status(200).json({
       status: 200,
       message: "All pending Orders ",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
+router.get("/get-allorder-inProgress", async (req, res) => {
+  try {
+    const data = await Orders.find(
+      { status: "inProgress" },
+      { updatedAt: 0, __v: 0 }
+    )
+      .sort({ createdAt: -1 })
+      .populate("userId", " -_id  fullname ProfileImage Phone ");
+    res.status(200).json({
+      status: 200,
+      message: "All inProgress Orders ",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "internel server error",
+      data: null,
+    });
+  }
+});
+router.get("/get-allorder-delivered", async (req, res) => {
+  try {
+    const data = await Orders.find(
+      { status: "delivered" },
+      { updatedAt: 0, __v: 0 }
+    )
+      .sort({ createdAt: -1 })
+      .populate("userId", " -_id  fullname ProfileImage Phone ");
+    res.status(200).json({
+      status: 200,
+      message: "All delivered Orders ",
       data: data,
     });
   } catch (error) {
