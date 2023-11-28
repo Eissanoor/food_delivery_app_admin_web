@@ -983,11 +983,11 @@ router.get("/get-foodid-to-addtocart", async (req, res) => {
         data: { isInCart: false },
       });
     } else {
-        res.status(200).json({
-          status: 200,
-          message: "AddToCart Food IDs",
-          data: { isInCart: true },
-        });
+      res.status(200).json({
+        status: 200,
+        message: "AddToCart Food IDs",
+        data: { isInCart: true },
+      });
     }
   } catch (error) {
     console.log(error);
@@ -1140,11 +1140,11 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
     if (data) {
       const data1 = await Orders.find(
         { userId: userId },
-        { createdAt: 0, updatedAt: 0, __v: 0, Id: 0, email: 0 }
+        { __v: 0, Id: 0, email: 0 }
       )
         .populate("userId", " -_id fullname ProfileImage Phone ")
         .skip(skip);
-      
+
       const userIdArray = data1
         .filter((item) => item.userId && item.status === "pending")
         .map((item) => ({
@@ -1152,8 +1152,9 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
           orderId: item._id,
           totalPrice: item.totalPrice,
           address: item.address,
+          status: item.status,
         }));
-      
+
       res.status(200).json({
         status: 200,
         message: "orders details",
