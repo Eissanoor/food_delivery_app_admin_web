@@ -1142,6 +1142,7 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
         { userId: userId },
         { __v: 0, Id: 0, email: 0 }
       )
+        .sort({ createdAt: -1 })
         .populate("userId", " -_id fullname ProfileImage Phone ")
         .skip(skip);
 
