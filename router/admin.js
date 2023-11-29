@@ -1244,4 +1244,39 @@ router.get("/get-allorder-delivered", async (req, res) => {
     });
   }
 });
+router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    // Find order items based on the orderId
+    const data = await MenuItem.find({ orderId: orderId });
+
+    // Extract _id values and create an array of foodId objects
+    const userIdArray = data.map((item) => ({
+      foodId: item._id,
+    }));
+    console.log(userIdArray);
+
+    // Fetch additional information from AddToCart using the userIdArray
+    const cartData = await AddToCart.find(
+      { $or: userIdArray },
+      { userId: 0, _id: 0 }
+    ).populate("foodId");
+
+    res.status(200).json({
+      status: 200,
+      message: "Order item details",
+
+      data: cartData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+
 module.exports = router;
