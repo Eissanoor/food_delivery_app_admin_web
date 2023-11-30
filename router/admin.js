@@ -887,7 +887,13 @@ router.get("/get-foodid-to-wishlist", async (req, res) => {
 router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
   try {
     const foodId = req.body.foodId;
-    const AddToCartexist = await AddToCart.findOne({ foodId: foodId });
+    const userId = req.body.userId;
+    const AddToCartexist = await AddToCart.findOne({
+      foodId,
+      userId,
+      status: "Active",
+    });
+    
     if (!AddToCartexist) {
       const AddToCartexistAdd = new AddToCart({
         userId: req.body.userId,
