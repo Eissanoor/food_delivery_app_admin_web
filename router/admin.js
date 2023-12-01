@@ -893,7 +893,7 @@ router.post("/add-or-remove-food-item-addtocart", async (req, res) => {
       userId,
       status: "Active",
     });
-    
+
     if (!AddToCartexist) {
       const AddToCartexistAdd = new AddToCart({
         userId: req.body.userId,
@@ -1284,5 +1284,55 @@ router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
     });
   }
 });
+router.put(
+  "/update-order-status-inprogress-delivered/:_id",
+  async (req, res) => {
+    try {
+      const id = req.params._id;
 
+      const user = await Orders.findOne({ _id: id, status: "pending" });
+      console.log(user);
+      const change = await Orders.findOne({ _id: id, status: "inProgress" });
+      console.log(change);
+      if (user) {
+        const updatedUser = await Orders.findOneAndUpdate(
+          { _id: id },
+          { status: "inProgress" },
+          { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+          status: 200,
+          message: "your status has been inProgress ",
+          data: null,
+        });
+      } else if (change) {
+        const updatedUser = await Orders.findOneAndUpdate(
+          { _id: id },
+          { status: "delivered" },
+          { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+          status: 200,
+          message: "your status has been delivered",
+          data: null,
+        });
+      } else {
+        return res.status(404).json({
+          status: 404,
+          message: "Order is not found",
+          data: null,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: 500,
+        message: "Internal server error",
+        data: null,
+      });
+    }
+  }
+);
 module.exports = router;
