@@ -1008,9 +1008,9 @@ router.put("/food-item-addtocart-quantity-inc", async (req, res) => {
   try {
     const userId = String(req.query.userId);
     const foodId = String(req.query.foodId);
-    const data = await AddToCart.findOne({ userId, userId });
-    const food = await AddToCart.findOne({ foodId, foodId });
-    if (!data || !food) {
+    const data = await AddToCart.findOne({ userId, foodId, status: "Active" });
+   
+    if (!data) {
       res.status(200).json({
         status: 200,
         message: "Not found",
@@ -1042,7 +1042,7 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
     const userId = String(req.query.userId);
     const foodId = String(req.query.foodId);
 
-    const data = await AddToCart.findOne({ userId, foodId });
+    const data = await AddToCart.findOne({ userId, foodId, status:"Active" });
 
     if (!data) {
       res.status(404).json({
@@ -1254,16 +1254,13 @@ router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
   try {
     const orderId = req.params.orderId;
 
-    // Find order items based on the orderId
     const data = await MenuItem.find({ orderId: orderId });
 
-    // Extract _id values and create an array of foodId objects
     const userIdArray = data.map((item) => ({
       foodId: item._id,
     }));
     console.log(userIdArray);
 
-    // Fetch additional information from AddToCart using the userIdArray
     const cartData = await AddToCart.find(
       { $or: userIdArray },
       { userId: 0, _id: 0 }
