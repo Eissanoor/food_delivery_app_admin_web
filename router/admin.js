@@ -1053,7 +1053,7 @@ router.put("/food-item-addtocart-quantity-dec", async (req, res) => {
     } else {
       if (data.quantity > 1) {
         const updatedCount = await AddToCart.findOneAndUpdate(
-          { userId: userId, foodId: foodId },
+          { userId: userId, foodId: foodId, status:"Active" },
           { $inc: { quantity: -1 } },
           { new: true }
         );
