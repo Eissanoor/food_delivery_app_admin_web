@@ -1107,6 +1107,8 @@ router.post("/place-order", async (req, res) => {
         const orderItem = new OrderItem({
           orderId: savedOrder._id,
           foodId: item.foodId._id,
+          quantity: item.quantity,
+          status:"ordered"
         });
 
         orderItems.push(orderItem);
@@ -1254,23 +1256,21 @@ router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
   try {
     const orderId = req.params.orderId;
 
-    const data = await MenuItem.find({ orderId: orderId });
+    const orderItems = await OrderItem.find({ orderId }).populate("foodId");
 
-    const userIdArray = data.map((item) => ({
-      foodId: item._id,
+    // Extract foodIds and quantities from orderItems
+    const foodDetails = orderItems.map((item) => ({
+      foodId: item.foodId,
+      quantity: item.quantity,
+      status:item.status,
+      createdAt: item.createdAt,
+      updatedAt:item.updatedAt
     }));
-    console.log(userIdArray);
-
-    const cartData = await AddToCart.find(
-      { $or: userIdArray },
-      { userId: 0, _id: 0 }
-    ).populate("foodId");
 
     res.status(200).json({
       status: 200,
       message: "Order item details",
-
-      data: cartData,
+      data: foodDetails,
     });
   } catch (error) {
     console.log(error);
@@ -1281,6 +1281,8 @@ router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
     });
   }
 });
+
+
 router.put(
   "/update-order-status-inprogress-delivered/:_id",
   async (req, res) => {

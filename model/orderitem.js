@@ -9,6 +9,7 @@ const orderitemSchema = new mongoose.Schema(
     foodId: { type: Schema.Types.ObjectId, ref: "menuitem", require: true },
 
     quantity: Number,
+    status:String,
   },
   {
     timestamps: true,
