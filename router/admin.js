@@ -1155,7 +1155,7 @@ router.get("/get-order-by-userid/:userId", async (req, res) => {
         .skip(skip);
 
       const userIdArray = data1
-        .filter((item) => item.userId && item.status === "pending")
+        .filter((item) => item.userId)
         .map((item) => ({
           user: item.userId,
           orderId: item._id,
@@ -1281,8 +1281,6 @@ router.get("/get-allorder-item-byorderid/:orderId", async (req, res) => {
     });
   }
 });
-
-
 router.put(
   "/update-order-status-inprogress-delivered/:_id",
   async (req, res) => {
