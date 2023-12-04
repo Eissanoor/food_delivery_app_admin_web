@@ -696,10 +696,10 @@ router.get("/get-random-five-fooditem", async (req, res) => {
     });
   }
 });
-router.delete("/delete-items/:itemName", async (req, res) => {
+router.delete("/delete-items/:foodName", async (req, res) => {
   try {
-    const itemName = req.params.itemName;
-    const result = await MenuItem.deleteOne({ itemName: itemName });
+    const foodName = req.params.foodName;
+    const result = await MenuItem.deleteOne({ foodName: foodName });
     if (result.deletedCount === 1) {
       res
         .status(200)
