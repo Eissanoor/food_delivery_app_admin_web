@@ -501,7 +501,7 @@ router.post("/add-items", upload.single("image"), async (req, res) => {
     } else {
       res.status(404).json({
         status: 404,
-        message: "itemName already present",
+        message: "Food name already present",
         data: null,
       });
     }
