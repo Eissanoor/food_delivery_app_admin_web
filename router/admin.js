@@ -406,10 +406,10 @@ router.put(
     }
   }
 );
-router.get("/get-user-detail/:id", auth, async (req, res) => {
+router.get("/get-user-detail/:_id", async (req, res) => {
   try {
-    const id = req.params._id;
-    const data = await providerRegister.findOne({ id: id }).select({
+    const _id = req.params._id;
+    const data = await providerRegister.findOne({ _id: _id }).select({
       _id: 1,
       email: 1,
       Phone: 1,
@@ -1332,4 +1332,5 @@ router.put(
     }
   }
 );
+
 module.exports = router;
