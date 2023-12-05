@@ -351,13 +351,12 @@ router.get("/get-alluser-detail", async (req, res) => {
 });
 router.put(
   "/update-user/:_id",
-  auth,
   upload.single("ProfileImage"),
   async (req, res) => {
     try {
-      const id = req.params._id;
+      const _id = req.params._id;
 
-      const user = await providerRegister.findOne({ _id: id });
+      const user = await providerRegister.findOne({ _id: _id });
 
       if (!user) {
         return res.status(404).json({
@@ -378,7 +377,7 @@ router.put(
         profileImageURL = result.url;
       }
       const updatedUser = await providerRegister.findOneAndUpdate(
-        { _id: id },
+        { _id: _id },
         { ...req.body, ProfileImage: profileImageURL, isNewUser: false },
         { new: true, runValidators: true }
       );
