@@ -23,6 +23,8 @@ const WishList = require("../model/wishlist");
 const AddToCart = require("../model/addtocart");
 const Orders = require("../model/order");
 const OrderItem = require("../model/orderitem");
+const Review = require("../model/review");
+const Rating = require("../model/rating");
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -1331,5 +1333,6 @@ router.put(
     }
   }
 );
+
 
 module.exports = router;

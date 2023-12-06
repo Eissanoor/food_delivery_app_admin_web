@@ -32,7 +32,7 @@ const empoleeSchema = new mongoose.Schema(
     },
 
     password: String,
-    Phone: Number,
+    Phone: String,
     address: String,
     ProfileImage: String,
     date: String,
