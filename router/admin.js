@@ -1333,6 +1333,27 @@ router.put(
     }
   }
 );
-
+router.post("/add/post/review", async (req, res) => {
+  const userId = req.body.userId;
+  const foodId = req.body.foodId;
+  try {
+    
+    const reviewvar = new Review({
+      userId: userId,
+      foodId: foodId,
+      text:req.body.text
+    });
+  
+    const reviewsave = await reviewvar.save();
+    res.status(201).json({
+      status: 201,
+      message: "Review has been Created",
+      data: null,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ status: 400, message: "not found", data: null });
+  }
+});
 
 module.exports = router;
