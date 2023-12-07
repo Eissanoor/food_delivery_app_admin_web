@@ -1355,5 +1355,86 @@ router.post("/add/post/review", async (req, res) => {
     res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
+router.get("/get/all/reviews/by/:foodId", async (req, res) => {
+  try {
+    const foodId = req.params.foodId;
 
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * pageSize;
+
+    const reviews = await Review.find({ foodId: foodId }).skip(skip).limit(pageSize);
+
+    if (reviews.length > 0) {
+      res.status(200).json({
+        status: 200,
+        message: "Review details",
+        data: reviews,
+      });
+    } else {
+      res.status(200).json({
+        status: 200,
+        message: "It seems like your Reviews is empty",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+router.get("/get/all/reviews/length/by/:foodId", async (req, res) => {
+  try {
+    const foodId = req.params.foodId;
+
+    const reviewsCount = await Review.countDocuments({ foodId: foodId });
+
+    if (reviewsCount > 0) {
+      res.status(200).json({
+        status: 200,
+        message: "Number of reviews",
+        data: { length: reviewsCount },
+      });
+    } else {
+      res.status(200).json({
+        status: 200,
+        message: "It seems like your Reviews is empty",
+        data: { length: 0 },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+router.post("/add/post/review", async (req, res) => {
+  const userId = req.body.userId;
+  const foodId = req.body.foodId;
+  try {
+    
+    const reviewvar = new Review({
+      userId: userId,
+      foodId: foodId,
+      text:req.body.text
+    });
+  
+    const reviewsave = await reviewvar.save();
+    res.status(201).json({
+      status: 201,
+      message: "Review has been Created",
+      data: null,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ status: 400, message: "not found", data: null });
+  }
+});
 module.exports = router;
