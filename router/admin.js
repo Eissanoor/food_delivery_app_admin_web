@@ -1363,7 +1363,7 @@ router.get("/get/all/reviews/by/:foodId", async (req, res) => {
     const pageSize = parseInt(req.query.pageSize) || 10;
     const skip = (page - 1) * pageSize;
 
-    const reviews = await Review.find({ foodId: foodId }).skip(skip).limit(pageSize);
+    const reviews = await Review.find({ foodId: foodId },{_id:0, text:1}).populate("userId", "ProfileImage fullname").skip(skip).limit(pageSize);
 
     if (reviews.length > 0) {
       res.status(200).json({
@@ -1415,21 +1415,21 @@ router.get("/get/all/reviews/length/by/:foodId", async (req, res) => {
     });
   }
 });
-router.post("/add/post/review", async (req, res) => {
+router.post("/give/rating/to/a/food", async (req, res) => {
   const userId = req.body.userId;
   const foodId = req.body.foodId;
   try {
     
-    const reviewvar = new Review({
+    const RatingVar = new Rating({
       userId: userId,
       foodId: foodId,
-      text:req.body.text
+      rating:req.body.rating
     });
   
-    const reviewsave = await reviewvar.save();
+    const reviewsave = await RatingVar.save();
     res.status(201).json({
       status: 201,
-      message: "Review has been Created",
+      message: "Rating has been Created",
       data: null,
     });
   } catch (e) {
@@ -1437,4 +1437,41 @@ router.post("/add/post/review", async (req, res) => {
     res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
+router.get("/get/average/rating/of/a/product/:foodId", async (req, res) => {
+  try {
+    const foodId = req.params.foodId;
+
+    const allRatings = await Rating.find({ foodId: foodId });
+
+    if (allRatings.length > 0) {
+      // Calculate the average rating
+      const totalRating = allRatings.reduce((sum, rating) => sum + rating.rating, 0);
+      const averageRating = totalRating / allRatings.length;
+
+      res.status(200).json({
+        status: 200,
+        message: "Average rating of the product",
+        data: averageRating,
+      });
+    } else {
+      res.status(200).json({
+        status: 200,
+        message: "It seems like there are no ratings for this product",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+
+
+
+
+
 module.exports = router;
