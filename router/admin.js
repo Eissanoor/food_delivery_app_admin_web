@@ -25,6 +25,7 @@ const Orders = require("../model/order");
 const OrderItem = require("../model/orderitem");
 const Review = require("../model/review");
 const Rating = require("../model/rating");
+const Stores = require("../model/stores")
 var dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("../database/db");
@@ -1457,6 +1458,70 @@ router.get("/get/average/rating/of/a/product/:foodId", async (req, res) => {
       res.status(200).json({
         status: 200,
         message: "It seems like there are no ratings for this product",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal server error",
+      data: null,
+    });
+  }
+});
+router.post("/give/stores/to/a/food", async (req, res) => {
+  const oneMonthInMillis = 1 * 24 * 60 * 60 * 1000;
+    const expirationTime = new Date().getTime() + oneMonthInMillis;
+  const { foodId, caption, expireIn } = req.body;
+ 
+
+try {
+  const storesVar = new Stores({
+    foodId: foodId,
+    caption: caption,
+    expireIn: expirationTime, // Set the expiration time
+    status: 0,
+  });
+
+  const storeSave = await storesVar.save();
+  res.status(201).json({
+    status: 201,
+    message: "Store has been created",
+    data: null,
+  });
+} catch (error) {
+  console.log(error);
+  res.status(400).json({ status: 400, message: "Not found", data: null });
+}
+});
+router.get("/get/store/of/a/product", async (req, res) => {
+  try {
+    const allStores = await Stores.find().populate("foodId","foodName price image")
+    if (allStores.length > 0) {
+      const currentTime = new Date().getTime();
+      const validStores = allStores.filter(store => store.expireIn > currentTime);
+
+      if (validStores.length > 0) {
+        
+        res.status(200).json({
+          status: 200,
+          message: "Valid Stores of a Product",
+          data: validStores,
+        });
+      } else {
+      
+        res.status(200).json({
+          status: 200,
+          message: "No valid stores available",
+          data: null,
+        });
+      }
+    } else {
+     
+      res.status(200).json({
+        status: 200,
+        message: "No stores found",
         data: null,
       });
     }
