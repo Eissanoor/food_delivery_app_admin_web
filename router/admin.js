@@ -1537,12 +1537,12 @@ router.get("/get/store/of/a/product", async (req, res) => {
 router.put("/View/stores", async (req, res) => {
   try {
     const _id = String(req.query._id);
-    const data = await Stores.findOne({ _id, status: "0" });
+    const data = await Stores.findOne({ _id});
 
     if (!data) {
-      res.status(200).json({
+    res.status(200).json({
         status: 200,
-        message: "Not found",
+        message: "Stores already Seen",
         data: null,
       });
     } else {
@@ -1554,7 +1554,7 @@ router.put("/View/stores", async (req, res) => {
 
       res.status(200).json({
         status: 200,
-        message: "Stores Viewed",
+        message: "Store Seen",
         data: null,
       });
     }
