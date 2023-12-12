@@ -1536,8 +1536,8 @@ router.get("/get/store/of/a/product", async (req, res) => {
 });
 router.put("/View/stores", async (req, res) => {
   try {
-    const foodId = String(req.query.foodId);
-    const data = await Stores.findOne({ foodId, status: "0" });
+    const _id = String(req.query._id);
+    const data = await Stores.findOne({ _id, status: "0" });
 
     if (!data) {
       res.status(200).json({
@@ -1547,7 +1547,7 @@ router.put("/View/stores", async (req, res) => {
       });
     } else {
       const updatedCount = await Stores.findOneAndUpdate(
-        { foodId, status: "0" }, // Condition to find the document
+        { _id, status: "0" }, // Condition to find the document
         { status: "1" }, // Update data
         { new: true } // To return the updated document
       );
