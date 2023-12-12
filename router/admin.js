@@ -1534,6 +1534,39 @@ router.get("/get/store/of/a/product", async (req, res) => {
     });
   }
 });
+router.put("/View/stores", async (req, res) => {
+  try {
+    const foodId = String(req.query.foodId);
+    const data = await Stores.findOne({ foodId, status: "0" });
+
+    if (!data) {
+      res.status(200).json({
+        status: 200,
+        message: "Not found",
+        data: null,
+      });
+    } else {
+      const updatedCount = await Stores.findOneAndUpdate(
+        { foodId, status: "0" }, // Condition to find the document
+        { status: "1" }, // Update data
+        { new: true } // To return the updated document
+      );
+
+      res.status(200).json({
+        status: 200,
+        message: "Stores Viewed",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal Server Error",
+      data: null,
+    });
+  }
+});
 
 
 
