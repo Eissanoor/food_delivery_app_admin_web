@@ -1356,7 +1356,8 @@ router.post("/add/post/review", async (req, res) => {
     res.status(400).json({ status: 400, message: "not found", data: null });
   }
 });
-router.get("/get/all/reviews/by/:foodId", async (req, res) => {
+router.get("/get/all/reviews/by/:foodId", async (req, res) =>
+{
   try {
     const foodId = req.params.foodId;
 
@@ -1364,7 +1365,14 @@ router.get("/get/all/reviews/by/:foodId", async (req, res) => {
     const pageSize = parseInt(req.query.pageSize) || 10;
     const skip = (page - 1) * pageSize;
 
-    const reviews = await Review.find({ foodId: foodId },{_id:0, text:1}).populate("userId", "ProfileImage fullname").skip(skip).limit(pageSize);
+    const sortField = req.query.sort || "createdAt"; // Default sorting by createdAt
+    const sortOrder = req.query.order === "desc" ? -1 : 1;
+
+    const reviews = await Review.find({ foodId: foodId }, { _id: 0, text: 1 })
+      .populate("userId", "ProfileImage fullname")
+      .sort({ [sortField]: sortOrder })
+      .skip(skip)
+      .limit(pageSize);
 
     if (reviews.length > 0) {
       res.status(200).json({
