@@ -25,11 +25,7 @@ The Food Delivery App allows users to browse restaurants, view menus, place orde
 - **JWT:** JSON Web Tokens for authentication and authorization.
 
 ### Frontend
-- **React.js:** Declarative, component-based library for building user interfaces.
-- **Redux:** Predictable state container for managing application state.
-- **React Router:** Declarative routing for single-page applications.
-- **Axios:** Promise-based HTTP client for making API requests.
-- **Material-UI:** React components library for UI design.
+- **flutter:** Declarative, component-based library for building user interfaces.
 
 ## Getting Started
 
@@ -44,6 +40,9 @@ Ensure you have the following installed:
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Eissanoor/food_delivery_app_admin_web.git
-  ![WhatsApp Image 2024-03-08 at 10 59 07 AM](https://github.com/Eissanoor/food_delivery_app_admin_web/assets/86971746/045a5ce0-c77a-4ecd-9288-2c21774fa3dc)
+
+![image](https://github.com/Eissanoor/food_delivery_app_admin_web/assets/86971746/d85cee8e-0ee6-4017-8fba-be69bb3d675a)
+
+
 
 
