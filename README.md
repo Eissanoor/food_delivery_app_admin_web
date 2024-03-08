@@ -44,5 +44,6 @@ Ensure you have the following installed:
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Eissanoor/food_delivery_app_admin_web.git
-   ![WhatsApp Image 2024-03-08 at 10 59 07 AM](https://github.com/Eissanoor/food_delivery_app_admin_web/assets/86971746/d60b4e37-04e5-4d33-839e-4c011c82f10b)
+  ![WhatsApp Image 2024-03-08 at 10 59 07 AM](https://github.com/Eissanoor/food_delivery_app_admin_web/assets/86971746/045a5ce0-c77a-4ecd-9288-2c21774fa3dc)
+
 
